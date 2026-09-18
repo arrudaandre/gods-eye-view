@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as Cesium from 'cesium';
-import { createIonImagery } from './imagery.js';
+import { createGibsImagery, createIonImagery } from './imagery.js';
 import { createWorldTerrain, createKeylessTerrain } from './terrain.js';
 import { createDefaultMapSources } from './defaultSources.js';
 
@@ -62,6 +62,27 @@ test('Esri uses Re:Earth without keys and preserves ion terrain when configured'
     Cesium.CesiumTerrainProvider.fromUrl = originalTerrain;
     Cesium.IonResource.fromAssetId = originalResource;
   }
+});
+
+test('NASA Daily is keyless, dated yesterday, and falls back to Esri', () => {
+  const keyless = createDefaultMapSources();
+  const gibs = keyless.sources.find(
+    ({ descriptor }) => descriptor.id === 'gibs-daily',
+  );
+  assert.equal(gibs.available, true);
+  assert.equal(gibs.terrain.id, 'keyless');
+  assert.equal(gibs.constructionFallback.id, 'esri-imagery');
+  assert.equal(gibs.tileFailureFallback.id, 'esri-imagery');
+  assert.match(gibs.credit, /NASA GIBS/);
+  const provider = createGibsImagery({
+    nowMs: Date.UTC(2026, 8, 18, 12, 0, 0),
+  });
+  assert.equal(provider.maximumLevel, 9);
+  assert.match(
+    provider.url,
+    /\/VIIRS_SNPP_CorrectedReflectance_TrueColor\/default\/2026-09-17\/GoogleMapsCompatible_Level9\/\{TileMatrix\}\/\{TileRow\}\/\{TileCol\}\.jpg$/,
+  );
+  assert.ok(provider.tilingScheme instanceof Cesium.WebMercatorTilingScheme);
 });
 
 test('imagery and terrain pass their own ion token without relying on SDK defaults', async () => {

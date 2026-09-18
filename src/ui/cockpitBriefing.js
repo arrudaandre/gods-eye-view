@@ -235,6 +235,20 @@ export function renderRegionalBrief(payload, info) {
       weather?.windDirectionDeg,
     );
   }
+  if (this.localWindAloft) {
+    // "25 / 29 KM/H" = 80 m / 120 m, the band a drone actually flies in.
+    const w80 = weather?.wind80Kph;
+    const w120 = weather?.wind120Kph;
+    this.localWindAloft.textContent =
+      Number.isFinite(w80) || Number.isFinite(w120)
+        ? `${Number.isFinite(w80) ? Math.round(w80) : '—'} / ${Number.isFinite(w120) ? Math.round(w120) : '—'} KM/H`
+        : '—';
+  }
+  if (this.localWindGust) {
+    this.localWindGust.textContent = Number.isFinite(weather?.windGustKph)
+      ? `GUST ${Math.round(weather.windGustKph)} · 80 / 120 M`
+      : '80 / 120 M';
+  }
   if (this.localCondition)
     this.localCondition.textContent = this.services.weatherCodeLabel(
       weather?.weatherCode,

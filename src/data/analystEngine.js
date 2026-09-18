@@ -61,6 +61,21 @@ export const ANALYST_LAYERS = {
     text: ['satellite'],
     flags: [],
   },
+  'inpe-deter': {
+    numeric: ['areaKm2'],
+    text: ['className', 'municipality', 'uf', 'satellite'],
+    flags: [],
+  },
+  'ana-river-gauges': {
+    numeric: ['levelM', 'delta24hCm', 'rain24hMm'],
+    text: ['name', 'river'],
+    flags: [],
+  },
+  'decea-airspace': {
+    numeric: ['lowerM', 'upperM'],
+    text: ['kind', 'kindLabel', 'ident', 'name'],
+    flags: [],
+  },
   earthquakes: {
     numeric: ['magnitude', 'depthKm'],
     text: ['place'],

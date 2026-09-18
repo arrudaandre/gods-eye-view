@@ -222,6 +222,9 @@ export function getActiveTrackedReadoutId() {
 const READOUT_CONTEXT_LAYERS = new Set([
   'military-installations',
   'alpr-cameras',
+  'inpe-deter',
+  'ana-river-gauges',
+  'decea-airspace',
 ]);
 
 /**

@@ -4,9 +4,11 @@ import { keySetupRequirement } from '../keySetupCore.mjs';
 import {
   createOsmImagery,
   createEsriImagery,
+  createGibsImagery,
   createIonImagery,
   ESRI_ATTRIBUTION_HTML,
 } from './imagery.js';
+import { GIBS_ATTRIBUTION_HTML } from './gibs.js';
 import { createWorldTerrain, createKeylessTerrain } from './terrain.js';
 
 /** Select sources and setup guidance without putting provider branches in the controller. */
@@ -47,13 +49,33 @@ export function createDefaultMapSources({
       const imagery =
         descriptor.kind === 'ion'
           ? () => createIonImagery(descriptor.style, ionToken)
-          : descriptor.id === 'osm'
-            ? createOsmImagery
-            : createEsriImagery;
+          : descriptor.kind === 'gibs'
+            ? () => createGibsImagery()
+            : descriptor.id === 'osm'
+              ? createOsmImagery
+              : createEsriImagery;
       return {
         ...common,
         imagery,
         terrain,
+        // Daily imagery is a public science service, not a CDN: a tile
+        // outage should land on Esri, never on a bare globe.
+        ...(descriptor.kind === 'gibs'
+          ? {
+              credit: GIBS_ATTRIBUTION_HTML,
+              constructionFallback: {
+                id: 'esri-imagery',
+                message:
+                  'NASA Daily imagery is unavailable; using Esri Satellite',
+              },
+              tileFailureFallback: {
+                id: 'esri-imagery',
+                threshold: 4,
+                message:
+                  'NASA Daily tile requests failed; using Esri Satellite',
+              },
+            }
+          : {}),
         ...(descriptor.id === 'esri-imagery'
           ? {
               credit: ESRI_ATTRIBUTION_HTML,

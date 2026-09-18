@@ -232,6 +232,27 @@ export const DATA_CREDITS = [
       'Instituto Nacional de Pesquisas Espaciais, Brazil',
   },
   {
+    key: 'deter',
+    html:
+      'Amazon deforestation alerts: INPE DETER via TerraBrasilis ' +
+      '(<a href="https://terrabrasilis.dpi.inpe.br/" target="_blank" rel="noopener">terrabrasilis.dpi.inpe.br</a>), ' +
+      'Instituto Nacional de Pesquisas Espaciais, Brazil',
+  },
+  {
+    key: 'ana',
+    html:
+      'River gauges (Brazil): ANA — Agência Nacional de Águas e Saneamento Básico, ' +
+      'SNIRH telemetry (<a href="https://www.snirh.gov.br/" target="_blank" rel="noopener">snirh.gov.br</a>), ' +
+      'stations operated by SGB-CPRM and partners',
+  },
+  {
+    key: 'decea',
+    html:
+      'Airspace, aerodromes &amp; heliports (Brazil): DECEA — ICA GeoAISWEB ' +
+      '(<a href="https://geoaisweb.decea.mil.br/" target="_blank" rel="noopener">geoaisweb.decea.mil.br</a>); ' +
+      'informational only, not for navigation — SARPAS/AISWEB are the authority',
+  },
+  {
     key: 'drivebc-cctv',
     html:
       'CCTV cameras &amp; frames (British Columbia): ' +

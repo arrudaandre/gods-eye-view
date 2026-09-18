@@ -3,6 +3,9 @@ import { celestrakProxy, rocketLaunchesProxy } from './space.js';
 import { tomtomProxy } from './traffic.js';
 import { firmsProxy } from './firms.js';
 import { inpeProxy } from './inpe.js';
+import { deterProxy } from './deter.js';
+import { anaGaugesProxy } from './ana.js';
+import { airspaceProxy } from './airspace.js';
 import { terrainHeightsProxy } from './terrain.js';
 import { adsbdbProxy } from './aircraft/enrichment.js';
 import { overpassProxy } from './overpass.js';
@@ -30,6 +33,9 @@ function localProviderPlugins() {
     tomtomProxy(),
     firmsProxy(),
     inpeProxy(),
+    deterProxy(),
+    anaGaugesProxy(),
+    airspaceProxy(),
     rocketLaunchesProxy(),
     terrainHeightsProxy(),
     adsbdbProxy(),

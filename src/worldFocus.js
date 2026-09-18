@@ -9,6 +9,10 @@ export const WORLD_CLICK_FOCUS_DURATION_SEC = 1.9;
 export const WORLD_FOCUS_FRAMING = Object.freeze({
   vessel: Object.freeze({ radiusM: 150, rangeM: 1200, pitchDeg: -30 }),
   fire: Object.freeze({ radiusM: 400, rangeM: 3000, pitchDeg: -35 }),
+  // Ground-draped feature (a DETER alert): frame a few hundred metres.
+  feature: Object.freeze({ radiusM: 600, rangeM: 5000, pitchDeg: -40 }),
+  // Airspace volume: tens of kilometres wide, so frame from far above.
+  volume: Object.freeze({ radiusM: 20000, rangeM: 70000, pitchDeg: -35 }),
 });
 
 /** Validate a layer-owned focus target before camera policy can release tracking. */

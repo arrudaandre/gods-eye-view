@@ -54,6 +54,7 @@ How to read this:
 | **TransLink** (Queensland Government) | Transit layer live vehicles, South East Queensland | TransLink / Queensland Government open realtime vehicle data, used for the live view; published for developer use and not against their use. | Attribution to TransLink / Queensland Government (courtesy text) |
 | **HSL** (realtime.hsl.fi) | Transit layer live vehicles, Helsinki | HSL (Helsinki Region Transport) open realtime vehicle data, used for the live view; published for developer use and not against their use. | Attribution to HSL (Helsinki Region Transport) (courtesy text) |
 | **Radio Browser**                                                     | Geolocated internet-radio station directory and station-level tags                                                                  | Public-domain directory data under PDDL 1.0; individual broadcaster stream terms apply                                                                                                                                                                                                                                                                | "Radio Browser" plus a link to the selected broadcaster                                                                                     |
+| **NASA GIBS** (Global Imagery Browse Services)                          | The "NASA Daily" map stack: yesterday's VIIRS SNPP corrected-reflectance true colour as WMTS tiles (Web Mercator, zoom ≤ 9)   | NASA data are public domain; GIBS asks to be acknowledged ("We acknowledge the use of imagery provided by services from NASA's GIBS, part of EOSDIS")                                                                                                                                                                                                | "Daily imagery: NASA GIBS / Worldview (VIIRS SNPP corrected reflectance), public domain"                                              |
 | **Re:Earth Terrain** (Mapterhorn)                                     | Terrain (keyless globe stacks — OSM etc. — + `/api/terrain/heights` ellipsoidal-height lookups)                                     | Terrain mesh: CC BY 4.0; geoid: EGM2008 (NGA, public domain)                                                                                                                                                                                                                                                                                          | "Terrain (keyless globe stacks): Re:Earth Terrain / Mapterhorn (CC BY 4.0) / EGM2008 (NGA)"                                                 |
 | **OSRM on the FOSSGIS routing servers** (`routing.openstreetmap.de`) | Street-following routes for the Directions layer and voice route annotations, via `/api/route` | [FOSSGIS routing usage policy](https://routing.openstreetmap.de/about.html): "Display the required attribution and display a link to 'fix the map'", "Use a valid user agent and, if applicable, a correct referrer", "One request per second max", "No scraping, no heavy usage". The full policy is the German [FOSSGIS Nutzungsbedingungen](https://www.fossgis.de/arbeitsgruppen/osm-server/nutzungsbedingungen/); FOSSGIS also states that the server may be embedded in your own pages but "eine gewerbliche Nutzung ist nur mit Einschränkungen erlaubt" (commercial use only with restrictions). Route data derives from OpenStreetMap (ODbL 1.0) | "Routing: OSRM on the FOSSGIS servers" + "© OpenStreetMap contributors" + a "fix the map" link — shown in the Data attribution popover |
 
@@ -164,6 +165,50 @@ No key is required. INPE publishes the data as open data and asks to be credited
 source ("Fonte: INPE — Programa Queimadas"); verify the current terms on the portal before
 redistributing derived datasets. Nothing from INPE is bundled in the repository.
 The former bundled 2026-05-25 snapshot was removed 2026-07-16.
+
+### INPE DETER (Amazon deforestation alerts)
+
+> Fonte: INPE — DETER / TerraBrasilis (Instituto Nacional de Pesquisas Espaciais, Brazil),
+> https://terrabrasilis.dpi.inpe.br/
+
+DETER alert polygons (clear-cut, degradation, selective logging, mining, burn scars) are
+**fetched live at runtime** from the TerraBrasilis WFS
+(`https://terrabrasilis.dpi.inpe.br/geoserver/deter-amz/deter_amz/ows`, GeoJSON, filtered
+by `view_date`). The `/api/deter` server-side proxy asks for the trailing `DETER_DAYS`
+window (default 30, max 120), compacts each alert to its class, date, satellite, place,
+area and rings, and caches for 6 hours in memory and on disk. No key is required. INPE
+publishes DETER as open data and asks to be credited as the source; verify the current
+terms on the TerraBrasilis portal before redistributing derived datasets. Nothing from
+DETER is bundled in the repository.
+
+### ANA river-gauge telemetry (Brazil)
+
+> Fonte: ANA — Agência Nacional de Águas e Saneamento Básico / SNIRH (estações operadas pelo
+> SGB-CPRM e parceiros), https://www.snirh.gov.br/
+
+River levels are **fetched live at runtime** from ANA's public telemetry service
+(`https://telemetriaws1.ana.gov.br/ServiceANA.asmx/DadosHidrometeorologicos`, XML, 15-minute
+readings). The `/api/ana-gauges` server-side proxy asks for the trailing three days of the
+stations in `ANA_STATIONS` (default: the Solimões–Amazonas–Negro trunk, Manaus first), one
+station at a time, summarizes each series (latest level, 24 h change, rain, 48 h sparkline)
+and caches for 15 minutes in memory and on disk. Unknown codes are resolved through the
+public station inventory (cached weekly). No key is required. ANA publishes the data as open
+government data; credit ANA/SNIRH and the operating agency. Nothing from ANA is bundled.
+
+### DECEA GeoAISWEB airspace (Brazil)
+
+> Fonte: DECEA — Departamento de Controle do Espaço Aéreo / ICA, GeoAISWEB,
+> https://geoaisweb.decea.mil.br/
+
+Controlled airspace (TMA, CTR, ATZ), special-use areas (prohibited, restricted, danger),
+aerodromes and heliports are **fetched live at runtime** from the GeoAISWEB GeoServer
+(`https://geoaisweb.decea.mil.br/geoserver/ICA/ows`, WFS 1.0.0, GeoJSON, one request per
+layer, clipped to `AIRSPACE_BBOX`, default Amazonas state). The `/api/airspace` server-side
+proxy normalizes vertical limits (SFC, FT MSL, FL, AGL) into metres and labels and caches
+for 24 hours in memory and on disk. No key is required. The data are published by DECEA as
+the official Brazilian AIS; this app draws them for situational awareness only — they are
+**not for navigation**, NOTAMs are not included, and drone operations remain subject to
+SARPAS/AISWEB authorization. Nothing from DECEA is bundled.
 
 ### Natural Earth physical regions (`natural_earth/`)
 

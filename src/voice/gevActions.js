@@ -263,6 +263,13 @@ const STACK_ALIASES = new Map([
   ['road', 'osm'],
   ['roads', 'osm'],
   ['road map', 'osm'],
+  // NASA Daily (GIBS): yesterday's VIIRS true colour, keyless. "daily" alone
+  // is ambiguous with data cadences, so only the NASA phrasings resolve.
+  ['gibs-daily', 'gibs-daily'],
+  ['gibs', 'gibs-daily'],
+  ['nasa daily', 'gibs-daily'],
+  ['nasa', 'gibs-daily'],
+  ['nasa imagery', 'gibs-daily'],
 ]);
 
 /** Search order for track_entity across entity layer families. */

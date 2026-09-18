@@ -1,5 +1,37 @@
 # Changelog
 
+- Add the keyless "NASA Daily" map stack: yesterday's VIIRS true-colour
+  mosaic from NASA GIBS as a WMTS basemap (smoke, clouds and flood extent as
+  they were), with Esri Satellite as the outage fallback and Re:Earth terrain
+  like the other keyless stacks. Voice reaches it as "NASA daily" /
+  "NASA imagery" (the enum/alias gate requires every shipped basemap).
+
+- Wind aloft for drone planning: the regional weather now carries Open-Meteo's
+  10 m gusts and 80 m / 120 m wind (the hour matching the observation), the
+  cockpit brief shows an ALOFT cell, and every selected DETER alert, river
+  gauge or airspace feature appends a "WIND km/h · 10 m … · 80 m … · 120 m …
+  · gust …" line to its readout card once the point lookup answers.
+
+- Add the keyless DECEA airspace layer: Brazilian TMA, CTR and ATZ volumes
+  and prohibited/restricted/danger areas extruded between their real limits
+  (surface-based ones follow the terrain), aerodromes and heliports with
+  ICAO labels, a selected readout with limits, FIR and AIRAC date, and a
+  24-hour cached proxy (`AIRSPACE_BBOX`, default Amazonas). Informational,
+  not for navigation.
+
+- Add the keyless ANA river-gauge layer: live 15-minute river levels at the
+  Amazon trunk stations (Manaus on the Rio Negro first), each with a trend-
+  coloured marker, an ambient card carrying the level, 24-hour change and a
+  48-hour sparkline, a selected readout with rain and station code, and a
+  15-minute cached proxy (`ANA_STATIONS`).
+
+- Add the keyless INPE DETER Amazon alerts layer: deforestation, degradation,
+  mining and burn-scar polygons from the TerraBrasilis WFS for the trailing
+  30 days (`DETER_DAYS`), draped on terrain with class-coloured markers, a
+  selected-alert readout card and a 6-hour cached proxy. Introduces the shared
+  geo-feature layer core (`src/layers/geofeatures/`) for snapshot polygon and
+  point layers.
+
 - Reopen where you left off: the camera pose is now saved locally
   (`gev:last-view:v1`, written on the same debounce as the share hash) and a
   plain load restores it instead of flying to Austin. A share link still wins,

@@ -908,6 +908,116 @@ then omit the bucket instead of claiming "low", and the selected card adds
 the INPE place line. `satelliteShortName` maps INPE spellings (NPP-375D,
 AQUA_M-T, TERRA_M-M, GOES-19, METOP-B) to readable short names.
 
+## INPE DETER Amazon alerts
+
+`inpe-deter` ("DETER Alerts (INPE)", Events group, share token `l`) draws
+INPE's DETER deforestation/degradation alert polygons for the Amazon biome.
+`server/providers/deter.js` fetches the TerraBrasilis WFS
+(`deter-amz:deter_amz`, GeoJSON, `CQL_FILTER=view_date>='<since>'`) for the
+trailing `DETER_DAYS` window (default 30, max 120), compacts each alert with
+the pure `src/data/deterModel.js` (class, `view_date`, satellite/sensor,
+municipality/UF/UC, `areamunkm` as km², area-weighted centroid, rings) and
+caches for 6 hours in memory and `.gev-cache/deter.json` with single-flight
+refresh and stale-on-failure; the window is re-clamped at serve time so a
+stale cache never serves alerts older than it. There is no key.
+
+The browser layer is the first instance of the shared geo-feature core
+(`src/layers/geofeatures/core.js`): one `CustomDataSource` rebuilt from each
+snapshot with constant-property entities (a ground-draped polygon per ring
+set, classifying terrain and 3D tiles, plus a class-coloured point marker
+hidden within 2,500 km), every feature registered in the context store, and
+a LEFT_CLICK handler that publishes the picked alert as the selected readout
+card (`gevLabelModel` + `gevDisplayPosition`, `trackedReadout` lists the
+layer) and requests a UI-owned `feature` world focus. Disable drops the
+entities and keeps the parsed snapshot; enable rebuilds without a fetch.
+Presentation (`src/layers/geofeatures/deter.js`) maps the seven DETER classes
+to colours and card copy; `getAnalystRecords` exposes class, place, area and
+date for the analyst engine.
+
+## ANA river gauges
+
+`ana-river-gauges` ("River Gauges (ANA)", Infrastructure group, share token
+`o`) is the second geo-feature layer: a point per ANA telemetry station.
+`server/providers/ana.js` fetches ANA's legacy SOAP endpoint
+(`DadosHidrometeorologicos`, XML) for the trailing three days of each
+station in `ANA_STATIONS` (default: the Solimões–Amazonas–Negro trunk plus
+Madeira and Tapajós, Manaus 14990000 first), sequentially, parses it with
+the pure `src/data/anaTelemetry.js` (regex DataSet parser, UTC stamps,
+duplicates collapsed), summarizes each series (latest level in m, change
+over 24 h from the nearest reading, rain over 24 h, 12-bucket 48 h
+sparkline) and caches 15 minutes in memory and `.gev-cache/ana-gauges.json`.
+Unknown codes resolve through the station inventory (cached a week);
+unresolvable ones are skipped. Partial success caches; total failure serves
+stale. There is no key.
+
+The layer (`src/layers/geofeatures/gauges.js`) draws a ground-clamped
+marker coloured by trend (rising cyan, falling amber, steady green, no
+reading grey) and publishes one ambient world-overlay card per station —
+"MANAUS · RIO NEGRO / 21.20 m ▼ 3 cm/24h / ▇▆▅…" — through the core's
+optional `overlayEntry` hook (Manaus outranks its neighbours when cards
+collide). Selecting a station adds age, rain and the station code to the
+readout. Analyst records expose level, trend and rain.
+
+## DECEA airspace
+
+`decea-airspace` ("Airspace (DECEA)", Infrastructure group, share token
+`y`) is the third geo-feature layer. `server/providers/airspace.js` walks
+eight GeoAISWEB WFS layers (TMA, CTR, ATZ, eac_p/r/d, airport, heliport)
+sequentially inside `AIRSPACE_BBOX` (default Amazonas state), normalizes
+each feature with the pure `src/data/airspaceModel.js` — the two attribute
+spellings (`upperlimit`/`lowerlimi1` + `uplimituni`/`lowerlimit` for
+controlled airspace, `upperlimit`/`lowerlimit` + `uom_*` for special-use
+areas) become `lowerM`/`upperM` metres, pilot labels (SFC, 2000 ft, FL145)
+and a `lowerGround` flag — and caches 24 h (AIRAC cadence) in memory and
+`.gev-cache/airspace.json`. Volumes with no height or no polygon are
+dropped. There is no key.
+
+The layer (`src/layers/geofeatures/airspace.js`) extrudes each volume
+between its limits through the core's polygon path: a surface-based lower
+limit clamps the base to the ground and the top relative to it, an MSL/FL
+lower limit uses absolute heights, both capped at 20 km. Kinds are colour
+coded (prohibited red, restricted orange, danger yellow, CTR/TMA blues, ATZ
+violet); aerodromes and heliports are clamped points with an ICAO label
+shown within 150 km (50 km for heliports). Selecting a volume frames it
+with the far `volume` focus; an aerodrome uses the close `feature` framing.
+Cards read "SBR704 · SOLIMÕES / Restricted area · SFC – 1500 ft / FIR SBAZ
+· AIRAC 2025-10-30". The credit states it is informational, not for
+navigation.
+
+## Wind aloft
+
+`fetchRegionalWeather` (server/providers/regional/weather.js) asks
+Open-Meteo for `wind_gusts_10m` in the current block and one day of hourly
+`wind_speed_80m`, `wind_direction_80m`, `wind_speed_120m`,
+`wind_direction_120m`; `normalizeRegionalWeather` picks the hourly row
+whose stamp shares the hour of `current.time` (`hourlyAtCurrent`, no
+approximation when the hour is missing) and adds `windGustKph`,
+`wind80Kph`, `wind80DirectionDeg`, `wind120Kph`, `wind120DirectionDeg`.
+Both `/api/regional-brief` and `/api/weather-effects` carry the fields.
+The cockpit brief renders an ALOFT cell ("25 / 29 KM/H", small "GUST 31 ·
+80 / 120 M"). `windAloftLine` formats one card line with 16-point compass
+directions; the geo-feature core's optional `enrich` service calls it after
+a selection (`windAloftForPoint` in src/app/layers/deter.js over the shared
+weather request service), appends the line to the readout card and
+refreshes it. The lookup is bounded to the selection: a newer pick, a clear,
+disable or destroy aborts it, and a late answer for another feature is
+dropped; a failed lookup leaves the card as it was.
+
+## NASA Daily map stack
+
+`gibs-daily` ("NASA Daily", chip DAILY) is a keyless imagery stack over
+NASA GIBS: `createGibsImagery` (src/maps/imagery.js) builds a
+`WebMapTileServiceImageryProvider` on the RESTful template from
+`src/maps/gibs.js` for `VIIRS_SNPP_CorrectedReflectance_TrueColor`, dated
+the last complete UTC day (`gibsImageryDate`: today's mosaic arrives in
+orbit strips and reads as broken), Web Mercator `GoogleMapsCompatible_Level9`
+with `maximumLevel` 9 (zoom 10 is a 400 upstream; Cesium upsamples past
+it). The stack uses the keyless Re:Earth terrain, carries the GIBS credit,
+and falls back to Esri Satellite on construction failure or four failed
+tiles. It is presented in the chip tray, counted as a globe stack for cable
+classification, and stripped from the hash like the other keyless basemaps
+after key setup. Voice does not name it yet.
+
 ## Installations and map-source guidance
 
 - On an uncached Overpass failure, mapped installations keep their existing
