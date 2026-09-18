@@ -958,6 +958,32 @@ optional `overlayEntry` hook (Manaus outranks its neighbours when cards
 collide). Selecting a station adds age, rain and the station code to the
 readout. Analyst records expose level, trend and rain.
 
+## DECEA airspace
+
+`decea-airspace` ("Airspace (DECEA)", Infrastructure group, share token
+`y`) is the third geo-feature layer. `server/providers/airspace.js` walks
+eight GeoAISWEB WFS layers (TMA, CTR, ATZ, eac_p/r/d, airport, heliport)
+sequentially inside `AIRSPACE_BBOX` (default Amazonas state), normalizes
+each feature with the pure `src/data/airspaceModel.js` — the two attribute
+spellings (`upperlimit`/`lowerlimi1` + `uplimituni`/`lowerlimit` for
+controlled airspace, `upperlimit`/`lowerlimit` + `uom_*` for special-use
+areas) become `lowerM`/`upperM` metres, pilot labels (SFC, 2000 ft, FL145)
+and a `lowerGround` flag — and caches 24 h (AIRAC cadence) in memory and
+`.gev-cache/airspace.json`. Volumes with no height or no polygon are
+dropped. There is no key.
+
+The layer (`src/layers/geofeatures/airspace.js`) extrudes each volume
+between its limits through the core's polygon path: a surface-based lower
+limit clamps the base to the ground and the top relative to it, an MSL/FL
+lower limit uses absolute heights, both capped at 20 km. Kinds are colour
+coded (prohibited red, restricted orange, danger yellow, CTR/TMA blues, ATZ
+violet); aerodromes and heliports are clamped points with an ICAO label
+shown within 150 km (50 km for heliports). Selecting a volume frames it
+with the far `volume` focus; an aerodrome uses the close `feature` framing.
+Cards read "SBR704 · SOLIMÕES / Restricted area · SFC – 1500 ft / FIR SBAZ
+· AIRAC 2025-10-30". The credit states it is informational, not for
+navigation.
+
 ## Installations and map-source guidance
 
 - On an uncached Overpass failure, mapped installations keep their existing

@@ -5,6 +5,7 @@ import { firmsProxy } from './firms.js';
 import { inpeProxy } from './inpe.js';
 import { deterProxy } from './deter.js';
 import { anaGaugesProxy } from './ana.js';
+import { airspaceProxy } from './airspace.js';
 import { terrainHeightsProxy } from './terrain.js';
 import { adsbdbProxy } from './aircraft/enrichment.js';
 import { overpassProxy } from './overpass.js';
@@ -34,6 +35,7 @@ function localProviderPlugins() {
     inpeProxy(),
     deterProxy(),
     anaGaugesProxy(),
+    airspaceProxy(),
     rocketLaunchesProxy(),
     terrainHeightsProxy(),
     adsbdbProxy(),

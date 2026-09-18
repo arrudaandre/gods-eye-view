@@ -71,6 +71,11 @@ export const ANALYST_LAYERS = {
     text: ['name', 'river'],
     flags: [],
   },
+  'decea-airspace': {
+    numeric: ['lowerM', 'upperM'],
+    text: ['kind', 'kindLabel', 'ident', 'name'],
+    flags: [],
+  },
   earthquakes: {
     numeric: ['magnitude', 'depthKm'],
     text: ['place'],

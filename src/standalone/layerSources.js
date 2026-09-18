@@ -40,5 +40,9 @@ export function createStandaloneLayerSources() {
     inpe: createFirmsSource({ url: '/api/inpe', label: 'INPE' }),
     deter: createJsonSnapshotSource({ url: '/api/deter', label: 'DETER' }),
     gauges: createJsonSnapshotSource({ url: '/api/ana-gauges', label: 'ANA' }),
+    airspace: createJsonSnapshotSource({
+      url: '/api/airspace',
+      label: 'GeoAISWEB',
+    }),
   };
 }

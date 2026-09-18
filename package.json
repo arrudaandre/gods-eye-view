@@ -103,6 +103,9 @@
     "./server/providers/ana": {
       "node": "./server/providers/ana.js"
     },
+    "./server/providers/airspace": {
+      "node": "./server/providers/airspace.js"
+    },
     "./server/providers/gbfs": {
       "node": "./server/providers/gbfs.js"
     },
@@ -163,6 +166,7 @@
     "./sources/inpe-csv": "./src/data/inpeCsv.js",
     "./sources/deter-model": "./src/data/deterModel.js",
     "./sources/ana-telemetry": "./src/data/anaTelemetry.js",
+    "./sources/airspace-model": "./src/data/airspaceModel.js",
     "./layers/geofeatures": "./src/layers/geofeatures/core.js",
     "./layers/geofeatures/source": "./src/layers/geofeatures/source.js",
     "./layers/firms": "./src/layers/firms/index.js",

@@ -368,6 +368,9 @@ export function createGeoFeatureLayer({
     const { entity, feature, style } = record;
     const copy = present.describe(feature);
     const anchor = anchorFor(feature, style);
+    // Ground-clamped entities have no Cartesian of their own until Cesium
+    // samples the surface; the readout leader needs one now, so hand it the
+    // authored anchor.
     entity.gevLabelModel = {
       title: copy.title,
       details: Array.isArray(copy.details) ? copy.details : [],
@@ -381,7 +384,7 @@ export function createGeoFeatureLayer({
     services?.readout?.refreshTrackedReadout?.(entity);
     publishOverlay();
     services?.focus?.requestWorldFocus?.({
-      kind: present.focusKind || 'feature',
+      kind: present.focusKindFor?.(feature) || present.focusKind || 'feature',
       id: `${id}:${featureKey(feature, 0)}`,
       label: name,
       position: anchor,

@@ -1,5 +1,12 @@
 # Changelog
 
+- Add the keyless DECEA airspace layer: Brazilian TMA, CTR and ATZ volumes
+  and prohibited/restricted/danger areas extruded between their real limits
+  (surface-based ones follow the terrain), aerodromes and heliports with
+  ICAO labels, a selected readout with limits, FIR and AIRAC date, and a
+  24-hour cached proxy (`AIRSPACE_BBOX`, default Amazonas). Informational,
+  not for navigation.
+
 - Add the keyless ANA river-gauge layer: live 15-minute river levels at the
   Amazon trunk stations (Manaus on the Rio Negro first), each with a trend-
   coloured marker, an ambient card carrying the level, 24-hour change and a

@@ -19,6 +19,7 @@ import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationDeter } from './layers/deter.js';
 import { createApplicationRiverGauges } from './layers/riverGauges.js';
+import { createApplicationAirspace } from './layers/airspace.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -47,6 +48,7 @@ const SOURCE_METHODS = Object.freeze({
   inpe: ['getSnapshot'],
   deter: ['getSnapshot'],
   gauges: ['getSnapshot'],
+  airspace: ['getSnapshot'],
   earthquakes: ['getSnapshot'],
   cables: ['fetch'],
 });
@@ -160,6 +162,8 @@ export function createApplicationCatalog({
         createApplicationDeter({ source: sources.deter }),
         // ANA river-gauge telemetry (keyless SOAP): level, trend, sparkline.
         createApplicationRiverGauges({ source: sources.gauges }),
+        // DECEA airspace volumes and aerodromes (keyless GeoAISWEB WFS).
+        createApplicationAirspace({ source: sources.airspace }),
       ],
       metadata,
     );

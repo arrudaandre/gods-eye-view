@@ -181,6 +181,22 @@
     ],
     "external": []
   },
+  "airspace-model": {
+    "exports": ["./sources/airspace-model"],
+    "modules": ["src/data/airspaceModel.js"],
+    "external": []
+  },
+  "airspace-provider": {
+    "runtime": "node",
+    "exports": ["./server/providers/airspace"],
+    "modules": [
+      "server/providers/airspace.js",
+      "server/providers/common/http.js",
+      "src/sources/httpBody.js",
+      "src/data/airspaceModel.js"
+    ],
+    "external": []
+  },
   "geofeatures-layer": {
     "exports": ["./layers/geofeatures"],
     "modules": ["src/layers/geofeatures/core.js"],
@@ -1872,7 +1888,10 @@
       "src/app/layers/deter.js",
       "src/data/anaTelemetry.js",
       "src/layers/geofeatures/gauges.js",
-      "src/app/layers/riverGauges.js"
+      "src/app/layers/riverGauges.js",
+      "src/data/airspaceModel.js",
+      "src/layers/geofeatures/airspace.js",
+      "src/app/layers/airspace.js"
     ],
     "external": [
       "@mapbox/vector-tile",
@@ -2273,7 +2292,10 @@
       "src/app/layers/deter.js",
       "src/data/anaTelemetry.js",
       "src/layers/geofeatures/gauges.js",
-      "src/app/layers/riverGauges.js"
+      "src/app/layers/riverGauges.js",
+      "src/data/airspaceModel.js",
+      "src/layers/geofeatures/airspace.js",
+      "src/app/layers/airspace.js"
     ],
     "external": [
       "cesium",

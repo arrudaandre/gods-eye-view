@@ -15,6 +15,9 @@
  *   (ii) GAUGES — `ana-river-gauges` loads the ANA trunk stations, paints
  *        ambient level cards through the shared overlay host, and a click on
  *        the Manaus marker selects "MANAUS · RIO NEGRO".
+ *   (iii) AIRSPACE — `decea-airspace` loads volumes and aerodromes; the
+ *        Manaus CTR is an extruded polygon with real limits and a click on
+ *        SBEG selects the aerodrome.
  *
  * Run:  node scripts/qa-amazon.mjs --url http://localhost:4173
  * Exits non-zero on any FAIL. Does not commit anything.
@@ -295,6 +298,86 @@ async function sectionGauges(page) {
   return Boolean(picked && counts.entries >= 5);
 }
 
+async function sectionAirspace(page) {
+  console.log(
+    '(iii) AIRSPACE — loading DECEA airspace through the cached proxy...',
+  );
+  const stats = await enableLayer(page, 'decea-airspace');
+  const loaded = stats.count >= 50 && !stats.error;
+  record(
+    'AIRSPACE: ≥50 volumes and aerodromes, no error',
+    loaded,
+    `count=${stats.count} error=${JSON.stringify(stats.error)} stale=${stats.stale}`,
+  );
+  if (!loaded) return false;
+
+  const probe = await page.evaluate(() => {
+    const layer = window.__godsEyeView.dataManager.layers.get('decea-airspace');
+    const rows = layer.module.getAnalystRecords(5000);
+    const kinds = {};
+    for (const row of rows) kinds[row.kind] = (kinds[row.kind] || 0) + 1;
+    const ctr = rows.find(
+      (row) => row.kind === 'CTR' && /Manaus/i.test(row.name || ''),
+    );
+    const sbeg = rows.find((row) => row.ident === 'SBEG');
+    // The CTR entity must carry a real extrusion (a volume, not a drape).
+    let extruded = null;
+    for (const source of window.__godsEyeView.viewer.dataSources._dataSources) {
+      if (source.name !== 'decea-airspace') continue;
+      const entity = source.entities.values.find((e) =>
+        String(e.id).startsWith('decea-airspace:CTR-'),
+      );
+      if (entity?.polygon) {
+        const now = window.__godsEyeView.viewer.clock.currentTime;
+        extruded = {
+          height: entity.polygon.height?.getValue(now) ?? null,
+          extrudedHeight: entity.polygon.extrudedHeight?.getValue(now) ?? null,
+        };
+      }
+    }
+    return { kinds, ctr, sbeg, extruded };
+  });
+  record(
+    'AIRSPACE: kinds cover volumes and aerodromes; Manaus CTR and SBEG present',
+    Boolean(probe.ctr && probe.sbeg && probe.kinds.AD > 10),
+    `kinds=${JSON.stringify(probe.kinds)} ctr=${probe.ctr?.name} ${probe.ctr?.lowerM}-${probe.ctr?.upperM} m`,
+  );
+  record(
+    'AIRSPACE: the CTR entity is extruded between its limits',
+    Boolean(probe.extruded && probe.extruded.extrudedHeight > 0),
+    JSON.stringify(probe.extruded),
+  );
+  if (!probe.sbeg) return false;
+
+  await lookDownAt(page, -60.05, -3.2, 60000);
+  await settle(page, 24);
+  await page.screenshot({ path: path.join(SHOTS_DIR, 'airspace-manaus.png') });
+
+  await lookDownAt(page, probe.sbeg.lon, probe.sbeg.lat, 5000);
+  await settle(page, 24);
+  const point = await windowPoint(page, probe.sbeg.lon, probe.sbeg.lat);
+  if (!point) {
+    record('AIRSPACE: SBEG projects on screen', false, 'off screen');
+    return false;
+  }
+  await page.mouse.click(point.x, point.y);
+  await settle(page, 8);
+  const selected = await selectedContext(page);
+  const picked =
+    selected.id === 'decea-airspace:AD-SBEG' &&
+    /SBEG/.test(selected.card?.title || '');
+  record(
+    'AIRSPACE: clicking SBEG selects the aerodrome and publishes the readout card',
+    picked,
+    `selected=${JSON.stringify(selected.id)} title=${JSON.stringify(selected.card?.title)} details=${JSON.stringify(selected.card?.details)}`,
+  );
+  await settle(page, 12);
+  await page.screenshot({
+    path: path.join(SHOTS_DIR, 'airspace-selected.png'),
+  });
+  return Boolean(picked && probe.extruded?.extrudedHeight > 0);
+}
+
 async function main() {
   fs.mkdirSync(SHOTS_DIR, { recursive: true });
   const browser = await puppeteer.launch({
@@ -329,6 +412,7 @@ async function main() {
     const sections = [
       ['deter', sectionDeter],
       ['gauges', sectionGauges],
+      ['airspace', sectionAirspace],
     ];
     for (const [name, run] of sections) {
       if (ONLY && ONLY !== name) continue;

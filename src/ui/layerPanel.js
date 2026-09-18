@@ -38,6 +38,7 @@ const PANEL_GROUPS = [
       'telegeography-submarine-cables',
       'local-dams',
       'ana-river-gauges',
+      'decea-airspace',
     ],
   },
   {
@@ -71,6 +72,7 @@ const PANEL_LABELS = {
   'inpe-fires': 'Amazon Fires (INPE)',
   'inpe-deter': 'DETER Alerts (INPE)',
   'ana-river-gauges': 'River Gauges (ANA)',
+  'decea-airspace': 'Airspace (DECEA)',
 };
 
 function panelLabel(layer) {

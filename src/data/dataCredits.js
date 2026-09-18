@@ -246,6 +246,13 @@ export const DATA_CREDITS = [
       'stations operated by SGB-CPRM and partners',
   },
   {
+    key: 'decea',
+    html:
+      'Airspace, aerodromes &amp; heliports (Brazil): DECEA — ICA GeoAISWEB ' +
+      '(<a href="https://geoaisweb.decea.mil.br/" target="_blank" rel="noopener">geoaisweb.decea.mil.br</a>); ' +
+      'informational only, not for navigation — SARPAS/AISWEB are the authority',
+  },
+  {
     key: 'drivebc-cctv',
     html:
       'CCTV cameras &amp; frames (British Columbia): ' +

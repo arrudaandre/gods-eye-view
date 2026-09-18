@@ -194,6 +194,21 @@ and caches for 15 minutes in memory and on disk. Unknown codes are resolved thro
 public station inventory (cached weekly). No key is required. ANA publishes the data as open
 government data; credit ANA/SNIRH and the operating agency. Nothing from ANA is bundled.
 
+### DECEA GeoAISWEB airspace (Brazil)
+
+> Fonte: DECEA — Departamento de Controle do Espaço Aéreo / ICA, GeoAISWEB,
+> https://geoaisweb.decea.mil.br/
+
+Controlled airspace (TMA, CTR, ATZ), special-use areas (prohibited, restricted, danger),
+aerodromes and heliports are **fetched live at runtime** from the GeoAISWEB GeoServer
+(`https://geoaisweb.decea.mil.br/geoserver/ICA/ows`, WFS 1.0.0, GeoJSON, one request per
+layer, clipped to `AIRSPACE_BBOX`, default Amazonas state). The `/api/airspace` server-side
+proxy normalizes vertical limits (SFC, FT MSL, FL, AGL) into metres and labels and caches
+for 24 hours in memory and on disk. No key is required. The data are published by DECEA as
+the official Brazilian AIS; this app draws them for situational awareness only — they are
+**not for navigation**, NOTAMs are not included, and drone operations remain subject to
+SARPAS/AISWEB authorization. Nothing from DECEA is bundled.
+
 ### Natural Earth physical regions (`natural_earth/`)
 
 Curated from the **Natural Earth 10m physical vectors** (https://www.naturalearthdata.com/ —
