@@ -9,6 +9,7 @@ import {
   decodeLayerStateParams,
   encodeLayerStateParams,
 } from './data/layerState.js';
+import { defaultLastViewStorage, writeLastView } from './lastView.js';
 
 /**
  * Share Links — URL Hash State Management
@@ -92,10 +93,17 @@ const SHARE_STYLE_PARAM_REGISTRY = Object.freeze({
 export class ShareLinkManager {
   constructor(
     viewer,
-    { onRestore, isNavigationCurrent, cancelOwnedNavigation } = {},
+    {
+      onRestore,
+      isNavigationCurrent,
+      cancelOwnedNavigation,
+      storage = defaultLastViewStorage(),
+    } = {},
   ) {
     this.viewer = viewer;
     this._onRestore = onRestore; // callback: ({ style, bloom, sharpen }) => void
+    // Durable last-view store (src/lastView.js); null when storage is blocked.
+    this._storage = storage;
     this._debounceTimer = null;
     this._currentStyle = 'normal';
     this._bloomEnabled = false;
@@ -536,6 +544,26 @@ export class ShareLinkManager {
     const params = this._buildHashParams();
     if (!params) return;
     history.replaceState(null, '', `#${params.toString()}`);
+    // Same moment, same pose: the hash is the shareable copy, the store is the
+    // reopen-later copy. Held back with the hash during an incoming restore so
+    // a share link's flight never overwrites the operator's own last view
+    // before it has even landed.
+    writeLastView(this._storage, this._cameraView());
+  }
+
+  /** Current camera pose in degrees/metres, or null before the first frame. */
+  _cameraView() {
+    const camera = this.viewer?.camera;
+    const carto = camera?.positionCartographic;
+    if (!carto) return null;
+    return {
+      lat: Cesium.Math.toDegrees(carto.latitude),
+      lon: Cesium.Math.toDegrees(carto.longitude),
+      alt: carto.height,
+      heading: Cesium.Math.toDegrees(camera.heading),
+      pitch: Cesium.Math.toDegrees(camera.pitch),
+      roll: Cesium.Math.toDegrees(camera.roll),
+    };
   }
 
   /** Build a deterministic snapshot without mutating history. */

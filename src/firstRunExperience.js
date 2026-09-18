@@ -65,7 +65,10 @@ export function environmentalLabel(choice = ENVIRONMENTAL_LABEL_CHOICE) {
  *                         Space Missions tabs do it. The globe missions open no
  *                         panel at all — nothing there needs explaining, and a
  *                         panel-collapse write is a pref nobody chose.
- *   TOUCHED, SESSION      the camera. Never persisted by anything.
+ *   TOUCHED, SESSION      the camera. The mission never persists it; the
+ *                         last-view store (`gev:last-view:v1`, src/lastView.js)
+ *                         is written by ShareLinkManager from camera motion,
+ *                         mission or not, and is not share state.
  *   NOT TOUCHED           detection mode + density. The reasonable-defaults
  *                         landing owns the DENSE/75 start, and Contacts owns
  *                         detection through contactsDetectionPolicy while it is

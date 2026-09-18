@@ -1623,6 +1623,7 @@
       "src/services/requests.js",
       "src/services/terrainHeights.js",
       "src/sharelink.js",
+      "src/lastView.js",
       "src/sources/live/aircraft.js",
       "src/sources/live/contract.js",
       "src/sources/live/standalone.js",
