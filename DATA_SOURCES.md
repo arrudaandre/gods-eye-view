@@ -165,6 +165,21 @@ source ("Fonte: INPE — Programa Queimadas"); verify the current terms on the p
 redistributing derived datasets. Nothing from INPE is bundled in the repository.
 The former bundled 2026-05-25 snapshot was removed 2026-07-16.
 
+### INPE DETER (Amazon deforestation alerts)
+
+> Fonte: INPE — DETER / TerraBrasilis (Instituto Nacional de Pesquisas Espaciais, Brazil),
+> https://terrabrasilis.dpi.inpe.br/
+
+DETER alert polygons (clear-cut, degradation, selective logging, mining, burn scars) are
+**fetched live at runtime** from the TerraBrasilis WFS
+(`https://terrabrasilis.dpi.inpe.br/geoserver/deter-amz/deter_amz/ows`, GeoJSON, filtered
+by `view_date`). The `/api/deter` server-side proxy asks for the trailing `DETER_DAYS`
+window (default 30, max 120), compacts each alert to its class, date, satellite, place,
+area and rings, and caches for 6 hours in memory and on disk. No key is required. INPE
+publishes DETER as open data and asks to be credited as the source; verify the current
+terms on the TerraBrasilis portal before redistributing derived datasets. Nothing from
+DETER is bundled in the repository.
+
 ### Natural Earth physical regions (`natural_earth/`)
 
 Curated from the **Natural Earth 10m physical vectors** (https://www.naturalearthdata.com/ —

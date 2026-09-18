@@ -17,6 +17,7 @@ import { createApplicationAlpr } from './layers/alprCameras.js';
 import { createApplicationAwareness } from './layers/militaryAwareness.js';
 import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
+import { createApplicationDeter } from './layers/deter.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -43,6 +44,7 @@ const SOURCE_METHODS = Object.freeze({
   alpr: ['fetch'],
   firms: ['getSnapshot'],
   inpe: ['getSnapshot'],
+  deter: ['getSnapshot'],
   earthquakes: ['getSnapshot'],
   cables: ['fetch'],
 });
@@ -152,6 +154,8 @@ export function createApplicationCatalog({
           namespace: 'inpe',
           contextSource: 'INPE Programa Queimadas',
         }),
+        // INPE DETER deforestation/degradation alert polygons (keyless WFS).
+        createApplicationDeter({ source: sources.deter }),
       ],
       metadata,
     );

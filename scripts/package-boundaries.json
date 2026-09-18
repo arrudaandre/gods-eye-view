@@ -149,6 +149,27 @@
     ],
     "external": []
   },
+  "deter-model": {
+    "exports": ["./sources/deter-model"],
+    "modules": ["src/data/deterModel.js"],
+    "external": []
+  },
+  "deter-provider": {
+    "runtime": "node",
+    "exports": ["./server/providers/deter"],
+    "modules": [
+      "server/providers/deter.js",
+      "server/providers/common/http.js",
+      "src/sources/httpBody.js",
+      "src/data/deterModel.js"
+    ],
+    "external": []
+  },
+  "geofeatures-layer": {
+    "exports": ["./layers/geofeatures"],
+    "modules": ["src/layers/geofeatures/core.js"],
+    "external": ["cesium"]
+  },
   "gbfs-provider": {
     "runtime": "node",
     "exports": ["./server/providers/gbfs"],
@@ -1827,7 +1848,12 @@
       "src/director/sharing/lifetime.js",
       "src/director/authoring.js",
       "src/scenes/sharing.js",
-      "src/ui/sceneSharing.js"
+      "src/ui/sceneSharing.js",
+      "src/layers/geofeatures/source.js",
+      "src/layers/geofeatures/core.js",
+      "src/data/deterModel.js",
+      "src/layers/geofeatures/deter.js",
+      "src/app/layers/deter.js"
     ],
     "external": [
       "@mapbox/vector-tile",
@@ -2221,7 +2247,11 @@
       "src/sources/overpassFeaturesRecords.js",
       "src/sources/overpassFeatures.js",
       "src/sources/featureSource.js",
-      "src/sources/overpassRoads.js"
+      "src/sources/overpassRoads.js",
+      "src/data/deterModel.js",
+      "src/layers/geofeatures/core.js",
+      "src/layers/geofeatures/deter.js",
+      "src/app/layers/deter.js"
     ],
     "external": [
       "cesium",
@@ -2475,6 +2505,11 @@
   "firms-source": {
     "exports": ["./layers/firms/source"],
     "modules": ["src/layers/firms/source.js"],
+    "external": []
+  },
+  "geofeatures-source": {
+    "exports": ["./layers/geofeatures/source"],
+    "modules": ["src/layers/geofeatures/source.js"],
     "external": []
   },
   "installations-source": {

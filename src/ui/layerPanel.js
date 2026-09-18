@@ -41,7 +41,13 @@ const PANEL_GROUPS = [
   },
   {
     label: 'Events',
-    ids: ['rocket-launches', 'earthquakes', 'local-firms', 'inpe-fires'],
+    ids: [
+      'rocket-launches',
+      'earthquakes',
+      'local-firms',
+      'inpe-fires',
+      'inpe-deter',
+    ],
   },
   {
     label: 'Utilities',
@@ -62,6 +68,7 @@ const PANEL_LABELS = {
   'local-datacenters': 'Data Centers',
   'local-firms': 'Active Fires',
   'inpe-fires': 'Amazon Fires (INPE)',
+  'inpe-deter': 'DETER Alerts (INPE)',
 };
 
 function panelLabel(layer) {

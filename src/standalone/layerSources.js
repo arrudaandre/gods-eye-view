@@ -13,6 +13,7 @@ import { createSatelliteSource } from '../layers/satellites/source.js';
 import { createLaunchSource } from '../layers/launches/source.js';
 import { createOverpassAlprSource } from '../layers/alpr/source.js';
 import { createFirmsSource } from '../layers/firms/source.js';
+import { createJsonSnapshotSource } from '../layers/geofeatures/source.js';
 import { createReferenceSources } from '../sources/reference.js';
 export { createReferenceSources as createStandaloneReferenceSources } from '../sources/reference.js';
 
@@ -37,5 +38,6 @@ export function createStandaloneLayerSources() {
     firms: createFirmsSource(),
     // Same snapshot contract as /api/firms, served by the keyless INPE proxy.
     inpe: createFirmsSource({ url: '/api/inpe', label: 'INPE' }),
+    deter: createJsonSnapshotSource({ url: '/api/deter', label: 'DETER' }),
   };
 }

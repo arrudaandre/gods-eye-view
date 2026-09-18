@@ -908,6 +908,32 @@ then omit the bucket instead of claiming "low", and the selected card adds
 the INPE place line. `satelliteShortName` maps INPE spellings (NPP-375D,
 AQUA_M-T, TERRA_M-M, GOES-19, METOP-B) to readable short names.
 
+## INPE DETER Amazon alerts
+
+`inpe-deter` ("DETER Alerts (INPE)", Events group, share token `l`) draws
+INPE's DETER deforestation/degradation alert polygons for the Amazon biome.
+`server/providers/deter.js` fetches the TerraBrasilis WFS
+(`deter-amz:deter_amz`, GeoJSON, `CQL_FILTER=view_date>='<since>'`) for the
+trailing `DETER_DAYS` window (default 30, max 120), compacts each alert with
+the pure `src/data/deterModel.js` (class, `view_date`, satellite/sensor,
+municipality/UF/UC, `areamunkm` as km², area-weighted centroid, rings) and
+caches for 6 hours in memory and `.gev-cache/deter.json` with single-flight
+refresh and stale-on-failure; the window is re-clamped at serve time so a
+stale cache never serves alerts older than it. There is no key.
+
+The browser layer is the first instance of the shared geo-feature core
+(`src/layers/geofeatures/core.js`): one `CustomDataSource` rebuilt from each
+snapshot with constant-property entities (a ground-draped polygon per ring
+set, classifying terrain and 3D tiles, plus a class-coloured point marker
+hidden within 2,500 km), every feature registered in the context store, and
+a LEFT_CLICK handler that publishes the picked alert as the selected readout
+card (`gevLabelModel` + `gevDisplayPosition`, `trackedReadout` lists the
+layer) and requests a UI-owned `feature` world focus. Disable drops the
+entities and keeps the parsed snapshot; enable rebuilds without a fetch.
+Presentation (`src/layers/geofeatures/deter.js`) maps the seven DETER classes
+to colours and card copy; `getAnalystRecords` exposes class, place, area and
+date for the analyst engine.
+
 ## Installations and map-source guidance
 
 - On an uncached Overpass failure, mapped installations keep their existing

@@ -97,6 +97,9 @@
     "./server/providers/inpe": {
       "node": "./server/providers/inpe.js"
     },
+    "./server/providers/deter": {
+      "node": "./server/providers/deter.js"
+    },
     "./server/providers/gbfs": {
       "node": "./server/providers/gbfs.js"
     },
@@ -155,6 +158,9 @@
     "./layers/earthquakes": "./src/layers/earthquakes/index.js",
     "./sources/firms-csv": "./src/data/firmsCsv.js",
     "./sources/inpe-csv": "./src/data/inpeCsv.js",
+    "./sources/deter-model": "./src/data/deterModel.js",
+    "./layers/geofeatures": "./src/layers/geofeatures/core.js",
+    "./layers/geofeatures/source": "./src/layers/geofeatures/source.js",
     "./layers/firms": "./src/layers/firms/index.js",
     "./layers/satellites": "./src/layers/satellites/index.js",
     "./layers/launches": "./src/layers/launches/index.js",

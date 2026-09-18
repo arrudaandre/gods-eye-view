@@ -1,5 +1,12 @@
 # Changelog
 
+- Add the keyless INPE DETER Amazon alerts layer: deforestation, degradation,
+  mining and burn-scar polygons from the TerraBrasilis WFS for the trailing
+  30 days (`DETER_DAYS`), draped on terrain with class-coloured markers, a
+  selected-alert readout card and a 6-hour cached proxy. Introduces the shared
+  geo-feature layer core (`src/layers/geofeatures/`) for snapshot polygon and
+  point layers.
+
 - Reopen where you left off: the camera pose is now saved locally
   (`gev:last-view:v1`, written on the same debounce as the share hash) and a
   plain load restores it instead of flying to Austin. A share link still wins,

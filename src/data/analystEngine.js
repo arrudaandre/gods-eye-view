@@ -61,6 +61,11 @@ export const ANALYST_LAYERS = {
     text: ['satellite'],
     flags: [],
   },
+  'inpe-deter': {
+    numeric: ['areaKm2'],
+    text: ['className', 'municipality', 'uf', 'satellite'],
+    flags: [],
+  },
   earthquakes: {
     numeric: ['magnitude', 'depthKm'],
     text: ['place'],

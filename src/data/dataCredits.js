@@ -232,6 +232,13 @@ export const DATA_CREDITS = [
       'Instituto Nacional de Pesquisas Espaciais, Brazil',
   },
   {
+    key: 'deter',
+    html:
+      'Amazon deforestation alerts: INPE DETER via TerraBrasilis ' +
+      '(<a href="https://terrabrasilis.dpi.inpe.br/" target="_blank" rel="noopener">terrabrasilis.dpi.inpe.br</a>), ' +
+      'Instituto Nacional de Pesquisas Espaciais, Brazil',
+  },
+  {
     key: 'drivebc-cctv',
     html:
       'CCTV cameras &amp; frames (British Columbia): ' +
