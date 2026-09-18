@@ -1,5 +1,11 @@
 # Changelog
 
+- Add the keyless ANA river-gauge layer: live 15-minute river levels at the
+  Amazon trunk stations (Manaus on the Rio Negro first), each with a trend-
+  coloured marker, an ambient card carrying the level, 24-hour change and a
+  48-hour sparkline, a selected readout with rain and station code, and a
+  15-minute cached proxy (`ANA_STATIONS`).
+
 - Add the keyless INPE DETER Amazon alerts layer: deforestation, degradation,
   mining and burn-scar polygons from the TerraBrasilis WFS for the trailing
   30 days (`DETER_DAYS`), draped on terrain with class-coloured markers, a

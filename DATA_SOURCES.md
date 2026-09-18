@@ -180,6 +180,20 @@ publishes DETER as open data and asks to be credited as the source; verify the c
 terms on the TerraBrasilis portal before redistributing derived datasets. Nothing from
 DETER is bundled in the repository.
 
+### ANA river-gauge telemetry (Brazil)
+
+> Fonte: ANA — Agência Nacional de Águas e Saneamento Básico / SNIRH (estações operadas pelo
+> SGB-CPRM e parceiros), https://www.snirh.gov.br/
+
+River levels are **fetched live at runtime** from ANA's public telemetry service
+(`https://telemetriaws1.ana.gov.br/ServiceANA.asmx/DadosHidrometeorologicos`, XML, 15-minute
+readings). The `/api/ana-gauges` server-side proxy asks for the trailing three days of the
+stations in `ANA_STATIONS` (default: the Solimões–Amazonas–Negro trunk, Manaus first), one
+station at a time, summarizes each series (latest level, 24 h change, rain, 48 h sparkline)
+and caches for 15 minutes in memory and on disk. Unknown codes are resolved through the
+public station inventory (cached weekly). No key is required. ANA publishes the data as open
+government data; credit ANA/SNIRH and the operating agency. Nothing from ANA is bundled.
+
 ### Natural Earth physical regions (`natural_earth/`)
 
 Curated from the **Natural Earth 10m physical vectors** (https://www.naturalearthdata.com/ —

@@ -312,6 +312,69 @@ test('a pointer owned by a tool is ignored, and disable releases entities but ke
   assert.equal(layer.enable(), false);
 });
 
+test('ambient cards follow the snapshot and hide the selected feature', async () => {
+  const published = [];
+  const visible = [];
+  const services = stubServices();
+  services.overlayHost = {
+    setEntries: (source, entries, options) =>
+      published.push({ source, ids: entries.map((e) => e.id), options }),
+    setVisible: (source, on) => visible.push([source, on]),
+    clearSource: (source) => published.push({ source, cleared: true }),
+  };
+  const handlerFactory = fakeHandlerFactory();
+  const layer = createGeoFeatureLayer({
+    id: 'carded',
+    name: 'Carded',
+    source: 'TEST',
+    feed: {
+      async getSnapshot() {
+        return { features: features() };
+      },
+    },
+    present: {
+      ...present,
+      overlayEntry: (feature, { id, source, position }) =>
+        feature.kind === 'empty'
+          ? null
+          : { id, source, position, variant: 'card', title: feature.id },
+    },
+    services,
+    screenSpaceEventHandlerFactory: handlerFactory,
+  });
+  const viewer = fakeViewer();
+  layer.init(viewer);
+  assert.deepEqual(visible.at(-1), ['carded', false]);
+  layer.enable();
+  await layer.update();
+  assert.deepEqual(published.at(-1).ids, ['a', 'b', 'c']);
+  assert.equal(published.at(-1).source, 'carded');
+  assert.deepEqual(visible.at(-1), ['carded', true]);
+
+  const entities = viewer._sources[0].entities.values;
+  viewer.scene.pick = () => ({
+    id: entities.find((entity) => entity.id === 'carded:b#0'),
+  });
+  handlerFactory.handlers[0].callback({ position: { x: 1, y: 1 } });
+  assert.deepEqual(
+    published.at(-1).ids,
+    ['a', 'c'],
+    'selected b loses its ambient card',
+  );
+  viewer.scene.pick = () => null;
+  handlerFactory.handlers[0].callback({ position: { x: 1, y: 1 } });
+  assert.deepEqual(
+    published.at(-1).ids,
+    ['a', 'b', 'c'],
+    'clearing restores it',
+  );
+
+  layer.disable();
+  assert.deepEqual(published.at(-1), { source: 'carded', cleared: true });
+  assert.deepEqual(visible.at(-1), ['carded', false]);
+  layer.destroy(viewer);
+});
+
 test('a malformed or failing snapshot keeps the previous entities and reports the error', async () => {
   const { layer } = build({ payload: { nope: true } });
   const viewer = fakeViewer();

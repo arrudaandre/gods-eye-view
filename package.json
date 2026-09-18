@@ -100,6 +100,9 @@
     "./server/providers/deter": {
       "node": "./server/providers/deter.js"
     },
+    "./server/providers/ana": {
+      "node": "./server/providers/ana.js"
+    },
     "./server/providers/gbfs": {
       "node": "./server/providers/gbfs.js"
     },
@@ -159,6 +162,7 @@
     "./sources/firms-csv": "./src/data/firmsCsv.js",
     "./sources/inpe-csv": "./src/data/inpeCsv.js",
     "./sources/deter-model": "./src/data/deterModel.js",
+    "./sources/ana-telemetry": "./src/data/anaTelemetry.js",
     "./layers/geofeatures": "./src/layers/geofeatures/core.js",
     "./layers/geofeatures/source": "./src/layers/geofeatures/source.js",
     "./layers/firms": "./src/layers/firms/index.js",

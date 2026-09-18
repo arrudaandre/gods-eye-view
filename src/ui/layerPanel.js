@@ -37,6 +37,7 @@ const PANEL_GROUPS = [
       'local-datacenters',
       'telegeography-submarine-cables',
       'local-dams',
+      'ana-river-gauges',
     ],
   },
   {
@@ -69,6 +70,7 @@ const PANEL_LABELS = {
   'local-firms': 'Active Fires',
   'inpe-fires': 'Amazon Fires (INPE)',
   'inpe-deter': 'DETER Alerts (INPE)',
+  'ana-river-gauges': 'River Gauges (ANA)',
 };
 
 function panelLabel(layer) {

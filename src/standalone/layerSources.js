@@ -39,5 +39,6 @@ export function createStandaloneLayerSources() {
     // Same snapshot contract as /api/firms, served by the keyless INPE proxy.
     inpe: createFirmsSource({ url: '/api/inpe', label: 'INPE' }),
     deter: createJsonSnapshotSource({ url: '/api/deter', label: 'DETER' }),
+    gauges: createJsonSnapshotSource({ url: '/api/ana-gauges', label: 'ANA' }),
   };
 }

@@ -165,6 +165,22 @@
     ],
     "external": []
   },
+  "ana-telemetry": {
+    "exports": ["./sources/ana-telemetry"],
+    "modules": ["src/data/anaTelemetry.js"],
+    "external": []
+  },
+  "ana-provider": {
+    "runtime": "node",
+    "exports": ["./server/providers/ana"],
+    "modules": [
+      "server/providers/ana.js",
+      "server/providers/common/http.js",
+      "src/sources/httpBody.js",
+      "src/data/anaTelemetry.js"
+    ],
+    "external": []
+  },
   "geofeatures-layer": {
     "exports": ["./layers/geofeatures"],
     "modules": ["src/layers/geofeatures/core.js"],
@@ -1853,7 +1869,10 @@
       "src/layers/geofeatures/core.js",
       "src/data/deterModel.js",
       "src/layers/geofeatures/deter.js",
-      "src/app/layers/deter.js"
+      "src/app/layers/deter.js",
+      "src/data/anaTelemetry.js",
+      "src/layers/geofeatures/gauges.js",
+      "src/app/layers/riverGauges.js"
     ],
     "external": [
       "@mapbox/vector-tile",
@@ -2251,7 +2270,10 @@
       "src/data/deterModel.js",
       "src/layers/geofeatures/core.js",
       "src/layers/geofeatures/deter.js",
-      "src/app/layers/deter.js"
+      "src/app/layers/deter.js",
+      "src/data/anaTelemetry.js",
+      "src/layers/geofeatures/gauges.js",
+      "src/app/layers/riverGauges.js"
     ],
     "external": [
       "cesium",

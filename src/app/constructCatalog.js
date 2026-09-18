@@ -18,6 +18,7 @@ import { createApplicationAwareness } from './layers/militaryAwareness.js';
 import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationDeter } from './layers/deter.js';
+import { createApplicationRiverGauges } from './layers/riverGauges.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -45,6 +46,7 @@ const SOURCE_METHODS = Object.freeze({
   firms: ['getSnapshot'],
   inpe: ['getSnapshot'],
   deter: ['getSnapshot'],
+  gauges: ['getSnapshot'],
   earthquakes: ['getSnapshot'],
   cables: ['fetch'],
 });
@@ -156,6 +158,8 @@ export function createApplicationCatalog({
         }),
         // INPE DETER deforestation/degradation alert polygons (keyless WFS).
         createApplicationDeter({ source: sources.deter }),
+        // ANA river-gauge telemetry (keyless SOAP): level, trend, sparkline.
+        createApplicationRiverGauges({ source: sources.gauges }),
       ],
       metadata,
     );

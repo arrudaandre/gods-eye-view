@@ -9,9 +9,12 @@
  * checks the shared context store / readout, saving a screenshot to
  * qa-shots/ (gitignored).
  *
- *   (i) DETER — `inpe-deter` loads hundreds of alert polygons with no error;
- *       a click on one selects exactly that alert (context id, readout card
- *       title) and hands the camera to the UI focus policy.
+ *   (i)  DETER — `inpe-deter` loads hundreds of alert polygons with no error;
+ *        a click on one selects exactly that alert (context id, readout card
+ *        title) and hands the camera to the UI focus policy.
+ *   (ii) GAUGES — `ana-river-gauges` loads the ANA trunk stations, paints
+ *        ambient level cards through the shared overlay host, and a click on
+ *        the Manaus marker selects "MANAUS · RIO NEGRO".
  *
  * Run:  node scripts/qa-amazon.mjs --url http://localhost:4173
  * Exits non-zero on any FAIL. Does not commit anything.
@@ -217,6 +220,81 @@ async function sectionDeter(page) {
   return Boolean(picked);
 }
 
+/** Painted/entry counts for one overlay source (shared host diagnostics). */
+async function overlayCounts(page, sourceId) {
+  return page.evaluate((id) => {
+    const d = window.__gevWorldOverlay?.getDiagnostics?.();
+    return {
+      entries: d?.entriesBySource?.[id] || 0,
+      painted: d?.paintedBySource?.[id] || 0,
+    };
+  }, sourceId);
+}
+
+async function sectionGauges(page) {
+  console.log(
+    '(ii) GAUGES — loading ANA river gauges through the cached proxy...',
+  );
+  const stats = await enableLayer(page, 'ana-river-gauges');
+  const loaded = stats.count >= 10 && !stats.error;
+  record(
+    'GAUGES: ≥10 stations, no error',
+    loaded,
+    `count=${stats.count} error=${JSON.stringify(stats.error)} stale=${stats.stale}`,
+  );
+  if (!loaded) return false;
+
+  const manaus = await page.evaluate(() => {
+    const mod =
+      window.__godsEyeView.dataManager.layers.get('ana-river-gauges').module;
+    return (
+      mod.getAnalystRecords(100).find((row) => row.id === '14990000') || null
+    );
+  });
+  record(
+    'GAUGES: Manaus (14990000) carries a level and a 24 h trend',
+    Boolean(manaus && Number.isFinite(manaus.levelM)),
+    manaus
+      ? `${manaus.name} · ${manaus.river} · ${manaus.levelM} m · ${manaus.delta24hCm} cm/24h`
+      : 'missing',
+  );
+  if (!manaus) return false;
+
+  // Regional view: ambient cards for the trunk stations.
+  await lookDownAt(page, -60.0272, -3.1383, 400000);
+  await settle(page, 24);
+  const counts = await overlayCounts(page, 'ana-river-gauges');
+  record(
+    'GAUGES: ambient level cards are published and painted',
+    counts.entries >= 5 && counts.painted >= 1,
+    `entries=${counts.entries} painted=${counts.painted}`,
+  );
+  await page.screenshot({ path: path.join(SHOTS_DIR, 'gauges-cards.png') });
+
+  // Close in on the Manaus marker and pick it.
+  await lookDownAt(page, manaus.lon, manaus.lat, 6000);
+  await settle(page, 24);
+  const point = await windowPoint(page, manaus.lon, manaus.lat);
+  if (!point) {
+    record('GAUGES: Manaus marker projects on screen', false, 'off screen');
+    return false;
+  }
+  await page.mouse.click(point.x, point.y);
+  await settle(page, 8);
+  const selected = await selectedContext(page);
+  const picked =
+    selected.id === 'ana-river-gauges:14990000' &&
+    selected.card?.title === 'MANAUS · RIO NEGRO';
+  record(
+    'GAUGES: clicking the Manaus marker selects it and publishes the readout card',
+    picked,
+    `selected=${JSON.stringify(selected.id)} title=${JSON.stringify(selected.card?.title)} details=${JSON.stringify(selected.card?.details)}`,
+  );
+  await settle(page, 12);
+  await page.screenshot({ path: path.join(SHOTS_DIR, 'gauges-selected.png') });
+  return Boolean(picked && counts.entries >= 5);
+}
+
 async function main() {
   fs.mkdirSync(SHOTS_DIR, { recursive: true });
   const browser = await puppeteer.launch({
@@ -248,7 +326,10 @@ async function main() {
     });
     await boot(page);
 
-    const sections = [['deter', sectionDeter]];
+    const sections = [
+      ['deter', sectionDeter],
+      ['gauges', sectionGauges],
+    ];
     for (const [name, run] of sections) {
       if (ONLY && ONLY !== name) continue;
       const ok = await run(page);

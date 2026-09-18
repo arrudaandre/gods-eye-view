@@ -934,6 +934,30 @@ Presentation (`src/layers/geofeatures/deter.js`) maps the seven DETER classes
 to colours and card copy; `getAnalystRecords` exposes class, place, area and
 date for the analyst engine.
 
+## ANA river gauges
+
+`ana-river-gauges` ("River Gauges (ANA)", Infrastructure group, share token
+`o`) is the second geo-feature layer: a point per ANA telemetry station.
+`server/providers/ana.js` fetches ANA's legacy SOAP endpoint
+(`DadosHidrometeorologicos`, XML) for the trailing three days of each
+station in `ANA_STATIONS` (default: the Solimões–Amazonas–Negro trunk plus
+Madeira and Tapajós, Manaus 14990000 first), sequentially, parses it with
+the pure `src/data/anaTelemetry.js` (regex DataSet parser, UTC stamps,
+duplicates collapsed), summarizes each series (latest level in m, change
+over 24 h from the nearest reading, rain over 24 h, 12-bucket 48 h
+sparkline) and caches 15 minutes in memory and `.gev-cache/ana-gauges.json`.
+Unknown codes resolve through the station inventory (cached a week);
+unresolvable ones are skipped. Partial success caches; total failure serves
+stale. There is no key.
+
+The layer (`src/layers/geofeatures/gauges.js`) draws a ground-clamped
+marker coloured by trend (rising cyan, falling amber, steady green, no
+reading grey) and publishes one ambient world-overlay card per station —
+"MANAUS · RIO NEGRO / 21.20 m ▼ 3 cm/24h / ▇▆▅…" — through the core's
+optional `overlayEntry` hook (Manaus outranks its neighbours when cards
+collide). Selecting a station adds age, rain and the station code to the
+readout. Analyst records expose level, trend and rain.
+
 ## Installations and map-source guidance
 
 - On an uncached Overpass failure, mapped installations keep their existing

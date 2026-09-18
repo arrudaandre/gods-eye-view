@@ -332,6 +332,9 @@ export function createGeoFeatureLayer({
     if (!overlayHost || !_enabled) return;
     const entries = [];
     for (const [key, record] of _primaryByKey) {
+      // The selected feature is already on screen as the tracked readout;
+      // its ambient card would stack right under it and say the same thing.
+      if (_selected && _selected.feature === record.feature) continue;
       const entry = present.overlayEntry(record.feature, {
         id: key,
         source: overlaySourceId,
@@ -357,6 +360,7 @@ export function createGeoFeatureLayer({
     if (!_selected) return;
     _selected = null;
     if (notify) context.clearSelectedEntityContextForLayer(id);
+    publishOverlay();
   }
 
   /** Publish one feature as the selected readout and ask for the camera. */

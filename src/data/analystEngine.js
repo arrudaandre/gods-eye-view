@@ -66,6 +66,11 @@ export const ANALYST_LAYERS = {
     text: ['className', 'municipality', 'uf', 'satellite'],
     flags: [],
   },
+  'ana-river-gauges': {
+    numeric: ['levelM', 'delta24hCm', 'rain24hMm'],
+    text: ['name', 'river'],
+    flags: [],
+  },
   earthquakes: {
     numeric: ['magnitude', 'depthKm'],
     text: ['place'],

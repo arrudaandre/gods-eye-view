@@ -239,6 +239,13 @@ export const DATA_CREDITS = [
       'Instituto Nacional de Pesquisas Espaciais, Brazil',
   },
   {
+    key: 'ana',
+    html:
+      'River gauges (Brazil): ANA — Agência Nacional de Águas e Saneamento Básico, ' +
+      'SNIRH telemetry (<a href="https://www.snirh.gov.br/" target="_blank" rel="noopener">snirh.gov.br</a>), ' +
+      'stations operated by SGB-CPRM and partners',
+  },
+  {
     key: 'drivebc-cctv',
     html:
       'CCTV cameras &amp; frames (British Columbia): ' +
