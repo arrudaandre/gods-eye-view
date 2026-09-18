@@ -375,6 +375,88 @@ test('ambient cards follow the snapshot and hide the selected feature', async ()
   layer.destroy(viewer);
 });
 
+test('an enricher appends lines to the selected card, bounded to that selection', async () => {
+  const services = stubServices();
+  const calls = [];
+  const pending = [];
+  services.enrich = ({ latitude, longitude }, { signal }) =>
+    new Promise((resolve, reject) => {
+      calls.push({ latitude, longitude, signal });
+      pending.push({ resolve, reject });
+    });
+  const handlerFactory = fakeHandlerFactory();
+  const layer = createGeoFeatureLayer({
+    id: 'enriched',
+    name: 'Enriched',
+    source: 'TEST',
+    feed: {
+      async getSnapshot() {
+        return { features: features() };
+      },
+    },
+    present,
+    services,
+    screenSpaceEventHandlerFactory: handlerFactory,
+  });
+  const viewer = fakeViewer();
+  layer.init(viewer);
+  layer.enable();
+  await layer.update();
+  const tick = () => new Promise((r) => setTimeout(r, 0));
+  const entities = viewer._sources[0].entities.values;
+  const entityA = entities.find((entity) => entity.id === 'enriched:a#0');
+  const entityB = entities.find((entity) => entity.id === 'enriched:b#0');
+  const click = (entity) => {
+    viewer.scene.pick = () => (entity ? { id: entity } : null);
+    handlerFactory.handlers[0].callback({ position: { x: 1, y: 1 } });
+  };
+
+  click(entityA);
+  await tick();
+  assert.equal(calls.length, 1);
+  assert.deepEqual(
+    { latitude: calls[0].latitude, longitude: calls[0].longitude },
+    { latitude: -2.95, longitude: -59.95 },
+  );
+
+  // A newer pick aborts the pending lookup; its late answer must not land.
+  click(entityB);
+  await tick();
+  assert.equal(calls[0].signal.aborted, true);
+  assert.equal(calls.length, 2);
+  pending[0].resolve(['LATE LINE']);
+  await tick();
+  assert.deepEqual(entityA.gevLabelModel.details, ['ground']);
+
+  const readoutsBefore = services.calls.filter(
+    (c) => c[0] === 'readout',
+  ).length;
+  pending[1].resolve(['WIND km/h · 10 m 3 N']);
+  await tick();
+  assert.deepEqual(entityB.gevLabelModel.details, [
+    'volume',
+    'WIND km/h · 10 m 3 N',
+  ]);
+  assert.ok(
+    services.calls.filter((c) => c[0] === 'readout').length > readoutsBefore,
+    'the readout is refreshed with the new line',
+  );
+
+  // A failing lookup leaves the card as it was.
+  click(entityA);
+  await tick();
+  pending[2].reject(new Error('offline'));
+  await tick();
+  assert.deepEqual(entityA.gevLabelModel.details, ['ground']);
+
+  // Clearing the selection aborts an in-flight lookup.
+  click(entityB);
+  await tick();
+  click(null);
+  assert.equal(calls[3].signal.aborted, true);
+  layer.destroy(viewer);
+});
+
 test('a malformed or failing snapshot keeps the previous entities and reports the error', async () => {
   const { layer } = build({ payload: { nope: true } });
   const viewer = fakeViewer();

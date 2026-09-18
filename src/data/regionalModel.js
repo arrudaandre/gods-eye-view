@@ -102,6 +102,7 @@ export function normalizeRegionalWeather(payload) {
     !/(?:[zZ]|[+-]\d\d:?\d\d)$/.test(current.time)
       ? `${current.time}Z`
       : current.time;
+  const aloft = hourlyAtCurrent(payload?.hourly, current.time);
   return {
     observedAt: Number.isNaN(Date.parse(observedRaw))
       ? null
@@ -112,9 +113,80 @@ export function normalizeRegionalWeather(payload) {
     cloudCoverPct: numberOrNull(current.cloud_cover),
     windKph: numberOrNull(current.wind_speed_10m),
     windDirectionDeg: numberOrNull(current.wind_direction_10m),
+    windGustKph: numberOrNull(current.wind_gusts_10m),
+    // Wind aloft (80 m and 120 m: the drone envelope) from the hourly block.
+    wind80Kph: numberOrNull(aloft?.wind_speed_80m),
+    wind80DirectionDeg: numberOrNull(aloft?.wind_direction_80m),
+    wind120Kph: numberOrNull(aloft?.wind_speed_120m),
+    wind120DirectionDeg: numberOrNull(aloft?.wind_direction_120m),
     visibilityM: numberOrNull(current.visibility),
     weatherCode: numberOrNull(current.weather_code),
   };
+}
+
+/**
+ * The hourly row whose stamp shares the hour of `current.time`. Open-Meteo
+ * stamps both blocks in the same zone, so a string match on the hour is
+ * enough; a missing or mismatched block yields null rather than a guess.
+ */
+export function hourlyAtCurrent(hourly, currentTime) {
+  const times = Array.isArray(hourly?.time) ? hourly.time : null;
+  const hour = String(currentTime || '').slice(0, 13);
+  if (!times || hour.length < 13) return null;
+  const index = times.findIndex((t) => String(t).slice(0, 13) === hour);
+  if (index < 0) return null;
+  const row = {};
+  for (const [key, values] of Object.entries(hourly)) {
+    if (key === 'time' || !Array.isArray(values)) continue;
+    row[key] = values[index];
+  }
+  return row;
+}
+
+/** Sixteen-point compass label for a bearing, '' when unknown. */
+export function compassPoint(degrees) {
+  if (!Number.isFinite(degrees)) return '';
+  const points = [
+    'N',
+    'NNE',
+    'NE',
+    'ENE',
+    'E',
+    'ESE',
+    'SE',
+    'SSE',
+    'S',
+    'SSW',
+    'SW',
+    'WSW',
+    'W',
+    'WNW',
+    'NW',
+    'NNW',
+  ];
+  return points[Math.round((((degrees % 360) + 360) % 360) / 22.5) % 16];
+}
+
+/**
+ * One line of wind aloft for a card: "WIND 10 m 12 km/h SW · 80 m 25 · 120 m 29
+ * · gust 31". Null when no level is known (the card then says nothing
+ * rather than "—").
+ */
+export function windAloftLine(weather) {
+  if (!weather) return null;
+  const parts = [];
+  const level = (label, kph, deg) => {
+    if (!Number.isFinite(kph)) return;
+    const dir = compassPoint(deg);
+    parts.push(`${label} ${Math.round(kph)}${dir ? ` ${dir}` : ''}`);
+  };
+  level('10 m', weather.windKph, weather.windDirectionDeg);
+  level('80 m', weather.wind80Kph, weather.wind80DirectionDeg);
+  level('120 m', weather.wind120Kph, weather.wind120DirectionDeg);
+  if (!parts.length) return null;
+  if (Number.isFinite(weather.windGustKph))
+    parts.push(`gust ${Math.round(weather.windGustKph)}`);
+  return `WIND km/h · ${parts.join(' · ')}`;
 }
 
 /** Translate the WMO weather code used by Open-Meteo into concise cockpit copy. */

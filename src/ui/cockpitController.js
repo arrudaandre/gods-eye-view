@@ -188,6 +188,8 @@ export class CockpitViewController {
     this.localWindDirection = document.getElementById(
       'cockpit-local-wind-direction',
     );
+    this.localWindAloft = document.getElementById('cockpit-local-wind-aloft');
+    this.localWindGust = document.getElementById('cockpit-local-wind-gust');
     this.localCondition = document.getElementById('cockpit-local-condition');
     this.localCloud = document.getElementById('cockpit-local-cloud');
     this.localPrecipitation = document.getElementById(

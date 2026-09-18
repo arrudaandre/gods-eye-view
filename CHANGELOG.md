@@ -1,5 +1,11 @@
 # Changelog
 
+- Wind aloft for drone planning: the regional weather now carries Open-Meteo's
+  10 m gusts and 80 m / 120 m wind (the hour matching the observation), the
+  cockpit brief shows an ALOFT cell, and every selected DETER alert, river
+  gauge or airspace feature appends a "WIND km/h · 10 m … · 80 m … · 120 m …
+  · gust …" line to its readout card once the point lookup answers.
+
 - Add the keyless DECEA airspace layer: Brazilian TMA, CTR and ATZ volumes
   and prohibited/restricted/danger areas extruded between their real limits
   (surface-based ones follow the terrain), aerodromes and heliports with

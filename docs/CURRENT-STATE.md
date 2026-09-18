@@ -984,6 +984,25 @@ Cards read "SBR704 · SOLIMÕES / Restricted area · SFC – 1500 ft / FIR SBAZ
 · AIRAC 2025-10-30". The credit states it is informational, not for
 navigation.
 
+## Wind aloft
+
+`fetchRegionalWeather` (server/providers/regional/weather.js) asks
+Open-Meteo for `wind_gusts_10m` in the current block and one day of hourly
+`wind_speed_80m`, `wind_direction_80m`, `wind_speed_120m`,
+`wind_direction_120m`; `normalizeRegionalWeather` picks the hourly row
+whose stamp shares the hour of `current.time` (`hourlyAtCurrent`, no
+approximation when the hour is missing) and adds `windGustKph`,
+`wind80Kph`, `wind80DirectionDeg`, `wind120Kph`, `wind120DirectionDeg`.
+Both `/api/regional-brief` and `/api/weather-effects` carry the fields.
+The cockpit brief renders an ALOFT cell ("25 / 29 KM/H", small "GUST 31 ·
+80 / 120 M"). `windAloftLine` formats one card line with 16-point compass
+directions; the geo-feature core's optional `enrich` service calls it after
+a selection (`windAloftForPoint` in src/app/layers/deter.js over the shared
+weather request service), appends the line to the readout card and
+refreshes it. The lookup is bounded to the selection: a newer pick, a clear,
+disable or destroy aborts it, and a late answer for another feature is
+dropped; a failed lookup leaves the card as it was.
+
 ## Installations and map-source guidance
 
 - On an uncached Overpass failure, mapped installations keep their existing

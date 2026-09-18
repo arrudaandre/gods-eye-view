@@ -174,7 +174,7 @@ function labelGraphicsFor(label, marker) {
  * @param {number} [config.updateInterval]
  * @param {{getSnapshot: function}} config.feed Snapshot feed; the payload must carry `features`.
  * @param {object} config.present Presentation: `style(feature)`, `describe(feature)`, optional `contextLabel`, `analystRecord`, `focusKind`, `anchorHeightM(feature)`.
- * @param {object} config.services `context` (store operations), optional `focus`, `readout`, `render`, `overlayHost` (ambient cards when `present.overlayEntry` exists).
+ * @param {object} config.services `context` (store operations), optional `focus`, `readout`, `render`, `overlayHost` (ambient cards when `present.overlayEntry` exists), `enrich` (async `({latitude, longitude}, {signal}) → string[]` appended to the selected card).
  */
 export function createGeoFeatureLayer({
   id,
@@ -227,6 +227,8 @@ export function createGeoFeatureLayer({
   /** feature key → {entity, feature} for click resolution and analyst reads */
   const _primaryByKey = new Map();
   let _selected = null;
+  /** In-flight enrichment (wind aloft) for the selected feature. */
+  let _enrichRequest = null;
 
   function featureKey(feature, index) {
     const key = String(feature?.id ?? '').trim();
@@ -357,10 +359,51 @@ export function createGeoFeatureLayer({
   }
 
   function clearSelection({ notify = true } = {}) {
+    _enrichRequest?.abort();
+    _enrichRequest = null;
     if (!_selected) return;
     _selected = null;
     if (notify) context.clearSelectedEntityContextForLayer(id);
     publishOverlay();
+  }
+
+  /**
+   * Ask the optional enricher (point weather: wind at 10/80/120 m) for extra
+   * card lines and append them once they arrive. Bounded to the current
+   * selection: a newer pick or a clear aborts the request, and a late answer
+   * for a feature no longer selected is dropped.
+   */
+  function enrichSelection(record, entity) {
+    if (typeof services?.enrich !== 'function') return;
+    _enrichRequest?.abort();
+    const request = new AbortController();
+    _enrichRequest = request;
+    Promise.resolve()
+      .then(() =>
+        services.enrich(
+          { latitude: record.feature.lat, longitude: record.feature.lon },
+          { signal: request.signal },
+        ),
+      )
+      .then((lines) => {
+        if (request.signal.aborted || _selected !== record) return;
+        const extra = Array.isArray(lines)
+          ? lines.map((line) => String(line)).filter(Boolean)
+          : [];
+        if (!extra.length || !entity.gevLabelModel) return;
+        entity.gevLabelModel = {
+          ...entity.gevLabelModel,
+          details: [...entity.gevLabelModel.details, ...extra],
+        };
+        services?.readout?.refreshTrackedReadout?.(entity);
+        requestRender(`${id}-enrich`);
+      })
+      .catch(() => {
+        /* weather is a garnish: a failed lookup leaves the card as it was */
+      })
+      .finally(() => {
+        if (_enrichRequest === request) _enrichRequest = null;
+      });
   }
 
   /** Publish one feature as the selected readout and ask for the camera. */
@@ -379,10 +422,13 @@ export function createGeoFeatureLayer({
     };
     entity.gevDisplayPosition = () => anchor;
     entity.gevTrackedId = `${id}:${record.feature?.id ?? ''}`;
+    _enrichRequest?.abort();
+    _enrichRequest = null;
     _selected = record;
     context.selectEntityContext(entity);
     services?.readout?.refreshTrackedReadout?.(entity);
     publishOverlay();
+    enrichSelection(record, entity);
     services?.focus?.requestWorldFocus?.({
       kind: present.focusKindFor?.(feature) || present.focusKind || 'feature',
       id: `${id}:${featureKey(feature, 0)}`,

@@ -18,6 +18,9 @@
  *   (iii) AIRSPACE — `decea-airspace` loads volumes and aerodromes; the
  *        Manaus CTR is an extruded polygon with real limits and a click on
  *        SBEG selects the aerodrome.
+ *   Every selected card is then enriched with an Open-Meteo wind-aloft line
+ *   (10 / 80 / 120 m + gust) through `/api/weather-effects`; the gauges
+ *   section asserts it.
  *
  * Run:  node scripts/qa-amazon.mjs --url http://localhost:4173
  * Exits non-zero on any FAIL. Does not commit anything.
@@ -169,6 +172,18 @@ async function selectedContext(page) {
   });
 }
 
+/** Poll the selected card until an enrichment line matching `pattern` lands. */
+async function waitForCardLine(page, pattern, { timeoutMs = 12000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  let details = [];
+  while (Date.now() < deadline) {
+    details = (await selectedContext(page)).card?.details || [];
+    if (details.some((line) => pattern.test(line))) return details;
+    await sleep(400);
+  }
+  return details;
+}
+
 async function sectionDeter(page) {
   console.log(
     '(i) DETER — loading the alerts layer through the cached proxy...',
@@ -292,6 +307,12 @@ async function sectionGauges(page) {
     'GAUGES: clicking the Manaus marker selects it and publishes the readout card',
     picked,
     `selected=${JSON.stringify(selected.id)} title=${JSON.stringify(selected.card?.title)} details=${JSON.stringify(selected.card?.details)}`,
+  );
+  const enriched = await waitForCardLine(page, /^WIND km\/h/);
+  record(
+    'GAUGES: the selected card gains a wind-aloft line from Open-Meteo',
+    enriched.some((line) => /^WIND km\/h/.test(line)),
+    JSON.stringify(enriched.find((line) => /^WIND/.test(line)) || enriched),
   );
   await settle(page, 12);
   await page.screenshot({ path: path.join(SHOTS_DIR, 'gauges-selected.png') });

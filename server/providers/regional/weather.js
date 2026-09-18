@@ -8,7 +8,12 @@ async function fetchRegionalWeather(point) {
     latitude: point.latitude.toFixed(5),
     longitude: point.longitude.toFixed(5),
     current:
-      'temperature_2m,apparent_temperature,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,visibility',
+      'temperature_2m,apparent_temperature,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility',
+    // Wind aloft only exists in the hourly block; one day is a few KB and the
+    // normalizer picks the hour that matches `current.time`.
+    hourly:
+      'wind_speed_80m,wind_direction_80m,wind_speed_120m,wind_direction_120m',
+    forecast_days: '1',
     timezone: 'UTC',
   });
   try {
