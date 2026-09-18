@@ -1,7 +1,4 @@
-import {
-  FIRMS_OVERLAY_SOURCE_ID,
-  fireDetectionKey,
-} from '../../data/firmsLabels.js';
+import { fireDetectionKey } from '../../data/firmsLabels.js';
 import * as Cesium from 'cesium';
 import { isPointerFree } from '../../data/inputOwnership.js';
 import { CONTEXT_TOP_N } from './policy.js';
@@ -21,7 +18,14 @@ export function createSelection({
     getContextStore,
     registerEntityContext,
   } = services.context;
-  const { id, name, overlayHost, screenSpaceEventHandlerFactory } = config;
+  const {
+    id,
+    name,
+    overlayHost,
+    overlaySourceId,
+    contextSource,
+    screenSpaceEventHandlerFactory,
+  } = config;
 
   /**
    * Install the LEFT_CLICK handler for fire selection (enable-time only,
@@ -54,7 +58,7 @@ export function createSelection({
         click.position?.x,
         click.position?.y,
         {
-          sourceId: FIRMS_OVERLAY_SOURCE_ID,
+          sourceId: overlaySourceId,
         },
       );
       if (cardHit) {
@@ -190,14 +194,14 @@ export function createSelection({
       id: recordId,
       layerId: id,
       layerName: name,
-      source: 'NASA FIRMS',
+      source: contextSource,
       dataSource: layerState._dataSource,
       label: `Fire · FRP ${components.model.formatFrp(fire.frp)} MW`,
       latitude: fire.lat,
       longitude: fire.lon,
       properties: {
         frp: fire.frp,
-        confidence: components.model.confidenceBucket(fire.confidence),
+        confidence: components.model.confidenceBucket(fire.confidence) ?? 'n/a',
         age:
           fire.acqMs > 0
             ? components.model.formatAge(Date.now() - fire.acqMs)

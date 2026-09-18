@@ -1,5 +1,4 @@
 import * as Cesium from 'cesium';
-import { FIRMS_OVERLAY_SOURCE_ID } from '../../data/firmsLabels.js';
 import { horizonOccluder } from '../../data/iconOrientation.js';
 import { LOD_LEVELS, CONTEXT_TOP_N } from './policy.js';
 
@@ -12,7 +11,11 @@ export function createRendering({
 }) {
   const { warmFireAnchorFloors } = services.anchors;
   const { registerSpriteCollection, restoreSpriteOrder } = services.sprites;
-  const { overlayHost } = config;
+  // Per-instance identity (resolveFiresConfig): pick ids are prefixed with the
+  // namespace so scene.pick() on an INPE sprite can never resolve to a FIRMS
+  // record — the pick registry keys owners by id, but both maps once used the
+  // same 'firms-N' strings.
+  const { overlayHost, overlaySourceId, namespace } = config;
 
   /**
    * Rebuild the render for the current LOD band and viewport. Skips work
@@ -234,7 +237,7 @@ export function createRendering({
       const coreSize = components.model.frpPixelSize(fire.frp);
       const position = components.model.firePosition(fire);
       const cullPosition = components.model.fireCullPosition(fire);
-      const pickId = `firms-${fire.index}`;
+      const pickId = `${namespace}-${fire.index}`;
       layerState._pickIndexById.set(pickId, fire);
       layerState._cullPositions.push(cullPosition);
       layerState._billboards.add({
@@ -289,9 +292,9 @@ export function createRendering({
     });
     layerState._billboards.show = layerState._enabled;
     layerState._viewer.scene.primitives.add(layerState._billboards);
-    registerSpriteCollection('firms', layerState._billboards);
+    registerSpriteCollection(namespace, layerState._billboards);
     restoreSpriteOrder(layerState._viewer);
-    overlayHost.setVisible(FIRMS_OVERLAY_SOURCE_ID, layerState._enabled);
+    overlayHost.setVisible(overlaySourceId, layerState._enabled);
   }
 
   function removeDetectionCollections(viewer) {
@@ -305,8 +308,8 @@ export function createRendering({
       }
     }
     layerState._billboards = null;
-    overlayHost.clearSource(FIRMS_OVERLAY_SOURCE_ID);
-    overlayHost.setVisible(FIRMS_OVERLAY_SOURCE_ID, false);
+    overlayHost.clearSource(overlaySourceId);
+    overlayHost.setVisible(overlaySourceId, false);
   }
 
   /**

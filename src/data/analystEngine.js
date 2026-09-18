@@ -56,6 +56,11 @@ export const ANALYST_LAYERS = {
     text: ['confidence', 'satellite'],
     flags: [],
   },
+  'inpe-fires': {
+    numeric: ['frp'],
+    text: ['satellite'],
+    flags: [],
+  },
   earthquakes: {
     numeric: ['magnitude', 'depthKm'],
     text: ['place'],

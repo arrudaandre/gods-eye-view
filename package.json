@@ -2,7 +2,7 @@
   "name": "gods-eye-view",
   "private": true,
   "version": "0.1.1",
-  "description": "A real-time intelligence console for planet Earth \u2014 photorealistic 3D globe, live aircraft/ships/satellites/earthquakes/CCTV, and hands-free voice control. Runs in a browser.",
+  "description": "A real-time intelligence console for planet Earth — photorealistic 3D globe, live aircraft/ships/satellites/earthquakes/CCTV, and hands-free voice control. Runs in a browser.",
   "type": "module",
   "license": "MIT",
   "author": "Bilawal Sidhu",
@@ -94,6 +94,9 @@
     "./server/providers/firms": {
       "node": "./server/providers/firms.js"
     },
+    "./server/providers/inpe": {
+      "node": "./server/providers/inpe.js"
+    },
     "./server/providers/gbfs": {
       "node": "./server/providers/gbfs.js"
     },
@@ -151,6 +154,7 @@
     "./layers/vessels": "./src/layers/vessels/index.js",
     "./layers/earthquakes": "./src/layers/earthquakes/index.js",
     "./sources/firms-csv": "./src/data/firmsCsv.js",
+    "./sources/inpe-csv": "./src/data/inpeCsv.js",
     "./layers/firms": "./src/layers/firms/index.js",
     "./layers/satellites": "./src/layers/satellites/index.js",
     "./layers/launches": "./src/layers/launches/index.js",
@@ -242,5 +246,8 @@
     "./layers/transit/source": "./src/layers/transit/source.js",
     "./sources/transit-service": "./src/sources/transitService.js",
     "./sources/map-features": "./src/sources/overpassFeatures.js"
+  },
+  "allowScripts": {
+    "puppeteer@25.10.0": true
   }
 }

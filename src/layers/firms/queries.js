@@ -38,11 +38,12 @@ export function createQueries({
 
     source,
 
-    // The one data-layer control a provider key gates: the proxy answers
+    // The one data-layer control a provider key gates: the NASA proxy answers
     // 503 {error:'no_key'} without a FIRMS key. Declared as a key-registry id
     // rather than an env-var string, so the panel can name the key from the
-    // one place that owns what each key is called.
-    requiresKeyId: 'firms',
+    // one place that owns what each key is called. Per instance
+    // (resolveFiresConfig): the keyless INPE feed carries null here.
+    requiresKeyId: config.requiresKeyId,
 
     // Live layer: the manager calls update() every 10 minutes while enabled,
     // which refetches through the /api/firms proxy (the proxy's 30 min TTL —
@@ -172,7 +173,10 @@ export function createQueries({
       layerState._pickIndexById.clear();
       layerState._labelLodDistance = 1e7;
       layerState._labelCandidates = fires.map((fire) => {
-        layerState._pickIndexById.set(`firms-${fire.index}`, fire);
+        layerState._pickIndexById.set(
+          `${config.namespace}-${fire.index}`,
+          fire,
+        );
         return { fire, position: components.model.firePosition(fire) };
       });
       components.cards.rebuildAmbientLabels();

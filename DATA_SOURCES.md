@@ -149,6 +149,20 @@ FIRMS active fires are **fetched live at runtime** (CC0 / U.S. public domain dat
 Suomi-NPP) clamped to the trailing 24 h, cached 30 min to respect the shared MAP_KEY
 transaction quota. Requires a free `FIRMS_MAP_KEY`
 (https://firms.modaps.eosdis.nasa.gov/api/map_key/); the layer is empty without it.
+
+### INPE Programa Queimadas (Amazon fires)
+
+> Fonte: INPE — Programa Queimadas (Instituto Nacional de Pesquisas Espaciais, Brazil),
+> https://terrabrasilis.dpi.inpe.br/queimadas/portal/
+
+Brazilian active-fire detections are **fetched live at runtime** from INPE's open-data
+server (`https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/diario/Brasil/`,
+one CSV per UTC day, all satellites). The `/api/inpe` server-side proxy fetches today's and
+yesterday's files sequentially, keeps the trailing 24 h, filters to the biomes in
+`INPE_FIRES_BIOMES` (default `Amazônia`), and caches for 20 minutes in memory and on disk.
+No key is required. INPE publishes the data as open data and asks to be credited as the
+source ("Fonte: INPE — Programa Queimadas"); verify the current terms on the portal before
+redistributing derived datasets. Nothing from INPE is bundled in the repository.
 The former bundled 2026-05-25 snapshot was removed 2026-07-16.
 
 ### Natural Earth physical regions (`natural_earth/`)

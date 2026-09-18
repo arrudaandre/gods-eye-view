@@ -35,5 +35,7 @@ export function createStandaloneLayerSources() {
     launches: createLaunchSource(),
     alpr: createOverpassAlprSource(),
     firms: createFirmsSource(),
+    // Same snapshot contract as /api/firms, served by the keyless INPE proxy.
+    inpe: createFirmsSource({ url: '/api/inpe', label: 'INPE' }),
   };
 }

@@ -112,10 +112,12 @@ test('flights, AIS, and FIRMS enable paths are wired through the shared sprite r
   const firmsLayer = createFirmsHeatmapLayer({ id: 'firms', name: 'FIRMS' });
   assert.match(flightsLayer.enable.toString(), /restoreSpriteOrderOnEnable\('flights', viewer\)/);
   assert.match(aisLiveVesselsLayer.enable.toString(), /restoreSpriteOrderOnEnable\('ais', activeViewer\)/);
-  assert.match(firmsLayer.enable.toString(), /restoreSpriteOrderOnEnable\('firms', viewer\)/);
+  // The fires layer keys sprite order by its per-instance namespace ('firms'
+  // for NASA, 'inpe' for the Amazon layer) — resolved in index.js.
+  assert.match(firmsLayer.enable.toString(), /restoreSpriteOrderOnEnable\(namespace, viewer\)/);
   assert.match(
     createFirmsRendering.toString(),
-    /registerSpriteCollection\('firms', layerState\._billboards\);\s*restoreSpriteOrder\(layerState\._viewer\);/,
+    /registerSpriteCollection\(namespace, layerState\._billboards\);\s*restoreSpriteOrder\(layerState\._viewer\);/,
     'lazy FIRMS registration must restore order immediately',
   );
 });

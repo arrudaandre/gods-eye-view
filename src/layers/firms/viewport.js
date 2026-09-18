@@ -139,7 +139,7 @@ export function createViewport({
         layerState._viewer.camera.moveEnd.addEventListener(() => {
           if (!layerState._enabled) return;
           setTimeout(
-            () => governorRequestRender('firms-lod-settle'),
+            () => governorRequestRender(`${config.namespace}-lod-settle`),
             LOD_CHECK_MS + 40,
           );
         });

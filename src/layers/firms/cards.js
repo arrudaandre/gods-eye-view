@@ -1,8 +1,5 @@
 import * as Cesium from 'cesium';
-import {
-  FIRMS_OVERLAY_SOURCE_ID,
-  FIRMS_AMBIENT_COHORT_LIMIT,
-} from '../../data/firmsLabels.js';
+import { FIRMS_AMBIENT_COHORT_LIMIT } from '../../data/firmsLabels.js';
 import { MAX_AMBIENT_LABELS, LABEL_VIEW_MARGIN_PX } from './policy.js';
 
 export function createCards({
@@ -12,7 +9,7 @@ export function createCards({
   config,
   feed,
 }) {
-  const { overlayHost } = config;
+  const { overlayHost, overlaySourceId } = config;
 
   /**
    * Rebuild the card entries for the shared world-overlay host: the
@@ -106,7 +103,7 @@ export function createCards({
     }
 
     overlayHost.setEntries(
-      FIRMS_OVERLAY_SOURCE_ID,
+      overlaySourceId,
       entries.map((entry) => {
         const card = components.model.applyFirmsOverlayPolicy(
           entry,
