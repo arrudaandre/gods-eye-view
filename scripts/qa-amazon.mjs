@@ -399,6 +399,40 @@ async function sectionAirspace(page) {
   return Boolean(picked && probe.extruded?.extrudedHeight > 0);
 }
 
+async function sectionGibs(page) {
+  console.log('(iv) GIBS — switching to the NASA Daily map stack...');
+  const tiles = { ok: 0, failed: 0 };
+  const onResponse = (response) => {
+    if (!/gibs\.earthdata\.nasa\.gov\/wmts/.test(response.url())) return;
+    if (response.status() === 200) tiles.ok += 1;
+    else tiles.failed += 1;
+  };
+  page.on('response', onResponse);
+  const state = await page.evaluate(async () => {
+    const controller = window.__godsEyeView.mapStackController;
+    const result = await controller.setStack('gibs-daily');
+    return {
+      activeId: controller.getActiveId(),
+      lastError: result?.lastError || null,
+    };
+  });
+  record(
+    'GIBS: the NASA Daily stack activates without error',
+    state.activeId === 'gibs-daily' && !state.lastError,
+    JSON.stringify(state),
+  );
+  await lookDownAt(page, -60.0, -3.1, 2_500_000);
+  await settle(page, 40, 300);
+  page.off('response', onResponse);
+  record(
+    'GIBS: daily tiles are served (yesterday, zoom ≤ 9)',
+    tiles.ok >= 4 && tiles.failed === 0,
+    `ok=${tiles.ok} failed=${tiles.failed}`,
+  );
+  await page.screenshot({ path: path.join(SHOTS_DIR, 'gibs-amazon.png') });
+  return state.activeId === 'gibs-daily' && tiles.ok >= 4 && tiles.failed === 0;
+}
+
 async function main() {
   fs.mkdirSync(SHOTS_DIR, { recursive: true });
   const browser = await puppeteer.launch({
@@ -434,6 +468,7 @@ async function main() {
       ['deter', sectionDeter],
       ['gauges', sectionGauges],
       ['airspace', sectionAirspace],
+      ['gibs', sectionGibs],
     ];
     for (const [name, run] of sections) {
       if (ONLY && ONLY !== name) continue;

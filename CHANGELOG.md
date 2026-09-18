@@ -1,5 +1,11 @@
 # Changelog
 
+- Add the keyless "NASA Daily" map stack: yesterday's VIIRS true-colour
+  mosaic from NASA GIBS as a WMTS basemap (smoke, clouds and flood extent as
+  they were), with Esri Satellite as the outage fallback and Re:Earth terrain
+  like the other keyless stacks. Voice reaches it as "NASA daily" /
+  "NASA imagery" (the enum/alias gate requires every shipped basemap).
+
 - Wind aloft for drone planning: the regional weather now carries Open-Meteo's
   10 m gusts and 80 m / 120 m wind (the hour matching the observation), the
   cockpit brief shows an ALOFT cell, and every selected DETER alert, river

@@ -1212,7 +1212,8 @@
       "src/maps/imagery.js",
       "src/maps/registry.js",
       "src/maps/terrain.js",
-      "src/keySetupCore.mjs"
+      "src/keySetupCore.mjs",
+      "src/maps/gibs.js"
     ],
     "external": ["cesium"]
   },
@@ -1891,7 +1892,8 @@
       "src/app/layers/riverGauges.js",
       "src/data/airspaceModel.js",
       "src/layers/geofeatures/airspace.js",
-      "src/app/layers/airspace.js"
+      "src/app/layers/airspace.js",
+      "src/maps/gibs.js"
     ],
     "external": [
       "@mapbox/vector-tile",

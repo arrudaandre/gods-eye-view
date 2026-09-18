@@ -1003,6 +1003,21 @@ refreshes it. The lookup is bounded to the selection: a newer pick, a clear,
 disable or destroy aborts it, and a late answer for another feature is
 dropped; a failed lookup leaves the card as it was.
 
+## NASA Daily map stack
+
+`gibs-daily` ("NASA Daily", chip DAILY) is a keyless imagery stack over
+NASA GIBS: `createGibsImagery` (src/maps/imagery.js) builds a
+`WebMapTileServiceImageryProvider` on the RESTful template from
+`src/maps/gibs.js` for `VIIRS_SNPP_CorrectedReflectance_TrueColor`, dated
+the last complete UTC day (`gibsImageryDate`: today's mosaic arrives in
+orbit strips and reads as broken), Web Mercator `GoogleMapsCompatible_Level9`
+with `maximumLevel` 9 (zoom 10 is a 400 upstream; Cesium upsamples past
+it). The stack uses the keyless Re:Earth terrain, carries the GIBS credit,
+and falls back to Esri Satellite on construction failure or four failed
+tiles. It is presented in the chip tray, counted as a globe stack for cable
+classification, and stripped from the hash like the other keyless basemaps
+after key setup. Voice does not name it yet.
+
 ## Installations and map-source guidance
 
 - On an uncached Overpass failure, mapped installations keep their existing

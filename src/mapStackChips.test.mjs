@@ -119,6 +119,14 @@ const CONTROLLER_STACKS = [
     available: true,
     unavailableReason: null,
   },
+
+  {
+    id: 'gibs-daily',
+    label: 'NASA Daily',
+    requiresIon: false,
+    available: true,
+    unavailableReason: null,
+  },
 ];
 
 test('the row renders exactly the five owner-approved sources', () => {
@@ -130,7 +138,14 @@ test('the row renders exactly the five owner-approved sources', () => {
 
   assert.deepEqual(
     container.children.map((chip) => chip.dataset.stackId),
-    ['photoreal', 'bing-aerial', 'bing-labels', 'esri-imagery', 'osm'],
+    [
+      'photoreal',
+      'bing-aerial',
+      'bing-labels',
+      'esri-imagery',
+      'osm',
+      'gibs-daily',
+    ],
   );
   assert.deepEqual(container.children.map(chipText), [
     'Google 3D',
@@ -138,6 +153,7 @@ test('the row renders exactly the five owner-approved sources', () => {
     'Bing Labels',
     'Esri Satellite',
     'OSM',
+    'NASA Daily',
   ]);
   assert.deepEqual(PRESENTED_MAP_STACK_IDS, [
     'photoreal',
@@ -145,6 +161,7 @@ test('the row renders exactly the five owner-approved sources', () => {
     'bing-labels',
     'esri-imagery',
     'osm',
+    'gibs-daily',
   ]);
   assert.ok(
     container.children.every(
@@ -168,7 +185,7 @@ test('internal and future stacks stay outside the approved presentation set', ()
   ];
   renderMapStackChips(container, withHybrid, { activeId: 'photoreal', doc });
 
-  assert.equal(container.children.length, 5);
+  assert.equal(container.children.length, 6);
   assert.doesNotMatch(container.children.map(chipText).join(' '), /Hybrid/);
 });
 

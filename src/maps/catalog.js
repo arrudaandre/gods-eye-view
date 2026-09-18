@@ -37,4 +37,13 @@ export const MAP_STACKS = [
     kind: 'osm',
     requiresIon: false,
   },
+  {
+    // Yesterday's VIIRS true colour from NASA GIBS: smoke, clouds, flood
+    // extent — the "what did the planet look like" globe, keyless.
+    id: 'gibs-daily',
+    label: 'NASA Daily',
+    shortLabel: 'DAILY',
+    kind: 'gibs',
+    requiresIon: false,
+  },
 ];
