@@ -1,6 +1,7 @@
 import { catalogControlServices } from './catalog.js';
 import { StyleManager } from '../ui/composition.js';
-import { flyToAustin } from '../camera.js';
+import { flyToAustin, flyToLastView } from '../camera.js';
+import { chooseStartupCamera, readLastView } from '../lastView.js';
 import { initCockpitCloudEffects } from '../cockpitCloudEffects.js';
 
 /** Construct the existing controls and camera presentation. */
@@ -39,12 +40,21 @@ export function createApplicationControls({
   });
   defer(() => cockpitCloudEffects?.destroy());
 
-  // If no share link state, do default fly-to Austin
-  if (!styleManager.hasShareState) {
+  // Share link → its author's view; else the operator's saved last view
+  // (src/lastView.js); else the default fly-to Austin.
+  const lastView = readLastView();
+  const startup = chooseStartupCamera({
+    hasShareState: styleManager.hasShareState,
+    lastView,
+  });
+  if (startup === 'share') {
+    loaderStatus.textContent = 'Restoring shared view...';
+  } else if (startup === 'last-view') {
+    loaderStatus.textContent = 'Restoring last view...';
+    defer(flyToLastView(viewer, lastView));
+  } else {
     loaderStatus.textContent = 'Flying to Austin, TX...';
     defer(flyToAustin(viewer));
-  } else {
-    loaderStatus.textContent = 'Restoring shared view...';
   }
 
   return { styleManager, weatherEffects, cockpitCloudEffects };

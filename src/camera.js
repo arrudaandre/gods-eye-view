@@ -47,6 +47,50 @@ export function flyToPreset(viewer, presetName, duration = 3.0) {
 }
 
 /**
+ * Reopen at the operator's saved view (src/lastView.js): a short descent from
+ * above the saved point, the same shape as the Austin fly-in so teardown and a
+ * first-run mission flight treat both startups alike.
+ * @param {Cesium.Viewer} viewer - Active viewer.
+ * @param {{lat: number, lon: number, alt: number, heading: number, pitch: number, roll: number}} view
+ * @returns {Function} Cancels the pending or active startup flight.
+ */
+export function flyToLastView(viewer, view) {
+  const pose = {
+    destination: Cesium.Cartesian3.fromDegrees(view.lon, view.lat, view.alt),
+    orientation: {
+      heading: Cesium.Math.toRadians(view.heading),
+      pitch: Cesium.Math.toRadians(view.pitch),
+      roll: Cesium.Math.toRadians(view.roll),
+    },
+  };
+  // Start a little above and straight down, then settle into the saved pose.
+  viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(
+      view.lon,
+      view.lat,
+      Math.max(view.alt * 2, view.alt + 3000),
+    ),
+    orientation: {
+      heading: pose.orientation.heading,
+      pitch: Cesium.Math.toRadians(-90),
+      roll: 0.0,
+    },
+  });
+  const timer = setTimeout(() => {
+    if (viewer.isDestroyed()) return;
+    viewer.camera.flyTo({
+      ...pose,
+      duration: 2.5,
+      easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
+    });
+  }, 500);
+  return () => {
+    clearTimeout(timer);
+    if (!viewer.isDestroyed()) viewer.camera.cancelFlight();
+  };
+}
+
+/**
  * Set camera to Austin on load with a cinematic fly-in.
  * @returns {Function} Cancels the pending or active startup flight.
  */

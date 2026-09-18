@@ -1,5 +1,11 @@
 # Changelog
 
+- Reopen where you left off: the camera pose is now saved locally
+  (`gev:last-view:v1`, written on the same debounce as the share hash) and a
+  plain load restores it instead of flying to Austin. A share link still wins,
+  and the saved view is not share state, so the first-run launcher and the
+  durable layer preferences behave as before.
+
 - Add a keyless **Amazon Fires (INPE)** layer: a second instance of the fires
   layer over INPE Programa Queimadas open data through a new `/api/inpe`
   proxy (today + yesterday daily files, trailing 24 h, `INPE_FIRES_BIOMES`

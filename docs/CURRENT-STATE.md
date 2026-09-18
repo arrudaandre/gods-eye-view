@@ -867,6 +867,21 @@ throws, that source reports failure without a contradictory success entry.
 The existing per-record append continues to support large feeds; sequential
 fetching, trailing-24-hour filtering and partial-success caching are unchanged.
 
+## Last view restore
+
+`src/lastView.js` owns a durable camera pose (`gev:last-view:v1`: lat/lon to
+4 decimals, whole metres and degrees — the share-hash rounding). ShareLinkManager
+writes it in `_updateHash`, i.e. on the same 500 ms debounce as the hash and
+under the same hold while an incoming share restore is pending, skipping
+unchanged poses; blocked or quota-limited storage is silently a no-op. On
+startup `app/controls.js` runs a three-way switch (`chooseStartupCamera`): an
+incoming share link keeps its author's view; otherwise a valid saved view parks
+the camera straight down above the pose and flies into it in 2.5 s
+(`flyToLastView`, same teardown contract as the Austin fly-in); otherwise the
+Austin default. A saved view is not share state — `hasShareState` stays false,
+so the first-run launcher and local layer preferences are unaffected, and a
+later mission or user flight simply wins as newer navigation.
+
 ## INPE Amazon fires (second fires instance)
 
 `inpe-fires` ("Amazon Fires (INPE)", Events group, share token `k`) is the
