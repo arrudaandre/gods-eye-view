@@ -9,7 +9,7 @@ export function createIngestion({
   feed,
 }) {
   const { clearSelectedEntityContextForLayer } = services.context;
-  const { id } = config;
+  const { id, namespace } = config;
 
   /** Replace a validated snapshot while preserving source freshness and selection identity. */
 
@@ -39,7 +39,12 @@ export function createIngestion({
       layerState._stale = Boolean(payload?.stale);
       const previousSelection = layerState._selectedFire;
       layerState._selectedFire = null;
-      layerState._fires = adaptFirmsRecords(payload?.fires);
+      // The namespace rides on each record as feedId: fireDetectionKey reads it,
+      // so FIRMS and INPE never mint the same context-store id for a detection
+      // both feeds carry.
+      layerState._fires = adaptFirmsRecords(payload?.fires, {
+        feedId: namespace,
+      });
       layerState._cellCacheByGrid.clear(); // aggregation is per-dataset — new fires, new cells
       layerState._firesByFrp = [...layerState._fires].sort(
         (a, b) => b.frp - a.frp,
@@ -71,7 +76,7 @@ export function createIngestion({
         !layerState._enabled
       )
         return;
-      console.warn(`[Data:${id}] FIRMS live load failed:`, error);
+      console.warn(`[Data:${id}] live fire load failed:`, error);
       layerState._error = 'live feed unavailable';
     } finally {
       if (layerState.request === request) {

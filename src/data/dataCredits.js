@@ -225,6 +225,13 @@ export const DATA_CREDITS = [
       'part of NASA’s Earth Observing System Data and Information System (EOSDIS)',
   },
   {
+    key: 'inpe',
+    html:
+      'Amazon fires: INPE — Programa Queimadas open data ' +
+      '(<a href="https://terrabrasilis.dpi.inpe.br/queimadas/portal/" target="_blank" rel="noopener">terrabrasilis.dpi.inpe.br/queimadas</a>), ' +
+      'Instituto Nacional de Pesquisas Espaciais, Brazil',
+  },
+  {
     key: 'drivebc-cctv',
     html:
       'CCTV cameras &amp; frames (British Columbia): ' +

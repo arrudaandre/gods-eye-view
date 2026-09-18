@@ -42,6 +42,7 @@ const SOURCE_METHODS = Object.freeze({
   launches: ['getLaunches', 'getActiveTle'],
   alpr: ['fetch'],
   firms: ['getSnapshot'],
+  inpe: ['getSnapshot'],
   earthquakes: ['getSnapshot'],
   cables: ['fetch'],
 });
@@ -137,6 +138,19 @@ export function createApplicationCatalog({
           icon: '▲',
           source: 'NASA FIRMS · LIVE',
           feed: sources.firms,
+        }),
+        // Second instance of the fires layer over INPE's open Brazilian feed
+        // (Amazon biome by default). `namespace` keeps its cards, picks and
+        // context records apart from FIRMS; open data, so no key gate.
+        createApplicationFirms({
+          surface,
+          id: 'inpe-fires',
+          name: 'INPE Amazon Fires',
+          icon: '▲',
+          source: 'INPE QUEIMADAS · LIVE',
+          feed: sources.inpe,
+          namespace: 'inpe',
+          contextSource: 'INPE Programa Queimadas',
         }),
       ],
       metadata,

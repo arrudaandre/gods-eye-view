@@ -13,6 +13,7 @@ import { KEY_SETUP_KEYS } from '../keySetupCore.mjs';
 import { createFirmsState } from '../layers/firms/state.js';
 import { createModel } from '../layers/firms/model.js';
 import { createQueries } from '../layers/firms/queries.js';
+import { resolveFiresConfig } from '../layers/firms/index.js';
 
 /** The fire layer's query half, with the scene services it never calls stubbed. */
 function firmsQueries() {
@@ -25,7 +26,11 @@ function firmsQueries() {
     picking: {},
     focus: {},
   };
-  const config = { id: 'local-firms', name: 'FIRMS Active Fires' };
+  // The composition root fills the per-instance identity (key gate included).
+  const config = resolveFiresConfig({
+    id: 'local-firms',
+    name: 'FIRMS Active Fires',
+  });
   const layerState = createFirmsState({ services, config });
   const components = {};
   const context = {

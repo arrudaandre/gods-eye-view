@@ -1,5 +1,14 @@
 # Changelog
 
+- Add a keyless **Amazon Fires (INPE)** layer: a second instance of the fires
+  layer over INPE Programa Queimadas open data through a new `/api/inpe`
+  proxy (today + yesterday daily files, trailing 24 h, `INPE_FIRES_BIOMES`
+  filter, 20-minute cache). The fires layer gains a per-instance `namespace`
+  (overlay source, pick ids, sprite order, detection keys, context source,
+  key gating) so FIRMS and INPE coexist; FIRMS defaults are unchanged.
+  Cards omit the confidence bucket when a feed publishes none and show the
+  INPE municipality/state; INPE satellite spellings get short names.
+
 - Distinguish PARTIAL vessel snapshots from STALE data in the layer panel, with
   accepted-record counts and unchanged retention, freshness and outage safeguards.
 

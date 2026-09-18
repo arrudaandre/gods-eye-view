@@ -327,7 +327,9 @@ export function createModel({
    */
 
   function buildSelectedFireCard(fire, nowMs) {
-    const meta = [`${confidenceBucket(fire.confidence)} conf`];
+    const meta = [];
+    const conf = confidenceBucket(fire.confidence);
+    if (conf) meta.push(`${conf} conf`);
     if (fire.acqMs > 0) {
       const age = formatAge(nowMs - fire.acqMs);
       if (age) meta.push(`${age} ago`);
@@ -348,6 +350,8 @@ export function createModel({
       details: [
         meta.join(' · '),
         formatLatLon(fire.lat, fire.lon) + (fire.night ? ' · NIGHT' : ''),
+        // INPE names the municipality/state; FIRMS has no place field.
+        ...(fire.place ? [fire.place] : []),
       ],
       selected: true,
       priority: Number.MAX_SAFE_INTEGER,
@@ -366,7 +370,9 @@ export function createModel({
 
   function buildFireCard(candidate, nowMs) {
     const fire = candidate.fire;
-    const meta = [confidenceBucket(fire.confidence)];
+    const meta = [];
+    const conf = confidenceBucket(fire.confidence);
+    if (conf) meta.push(conf);
     if (fire.acqMs > 0) {
       const age = formatAge(nowMs - fire.acqMs);
       if (age) meta.push(age);
@@ -495,9 +501,14 @@ export function createModel({
     return `${Math.round(minutes / 60)}h ago`;
   }
 
-  /** Normalized 0..1 confidence → low/nominal/high display bucket. */
+  /**
+   * Normalized 0..1 confidence → low/nominal/high display bucket, or null
+   * when the feed reports no confidence at all (INPE) so cards and context
+   * records omit it instead of asserting "low".
+   */
 
   function confidenceBucket(confidence) {
+    if (!Number.isFinite(confidence)) return null;
     if (confidence >= 0.75) return 'high';
     if (confidence >= 0.45) return 'nominal';
     return 'low';

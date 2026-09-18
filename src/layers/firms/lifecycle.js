@@ -1,5 +1,4 @@
 import * as Cesium from 'cesium';
-import { FIRMS_OVERLAY_SOURCE_ID } from '../../data/firmsLabels.js';
 
 export function createLifecycle({
   layerState,
@@ -11,7 +10,9 @@ export function createLifecycle({
   const { registerPickOwner, unregisterPickOwner } = services.picking;
   const { restoreSpriteOrderOnEnable } = services.sprites;
   const { clearSelectedEntityContextForLayer } = services.context;
-  const { id, overlayHost } = config;
+  // overlaySourceId / namespace come from resolveFiresConfig: per instance,
+  // so a sibling fires feed never hides or clears this layer's cards.
+  const { id, overlayHost, overlaySourceId, namespace } = config;
 
   const methods = {
     init(viewer) {
@@ -39,7 +40,7 @@ export function createLifecycle({
         components.rendering.refreshHorizonCulling();
         layerState._billboards.show = true;
       }
-      overlayHost.setVisible(FIRMS_OVERLAY_SOURCE_ID, true);
+      overlayHost.setVisible(overlaySourceId, true);
       components.viewport.installLodWatcher();
       components.viewport.installMoveEndWatcher();
       components.selection.installClickHandler();
@@ -53,7 +54,7 @@ export function createLifecycle({
         !layerState._destroyed &&
         layerState._viewer === viewer
       )
-        restoreSpriteOrderOnEnable('firms', viewer);
+        restoreSpriteOrderOnEnable(namespace, viewer);
     },
 
     disable() {
@@ -64,8 +65,8 @@ export function createLifecycle({
       components.selection.clearFireSelection();
       if (layerState._dataSource) layerState._dataSource.show = false;
       if (layerState._billboards) layerState._billboards.show = false;
-      overlayHost.clearSource(FIRMS_OVERLAY_SOURCE_ID);
-      overlayHost.setVisible(FIRMS_OVERLAY_SOURCE_ID, false);
+      overlayHost.clearSource(overlaySourceId);
+      overlayHost.setVisible(overlaySourceId, false);
       clearSelectedEntityContextForLayer(id);
       components.selection.removeClickHandler();
       components.viewport.removeMoveEndWatcher();
@@ -101,8 +102,8 @@ export function createLifecycle({
       layerState._stale = false;
       layerState._error = null;
       layerState._currentLodId = null;
-      overlayHost.clearSource(FIRMS_OVERLAY_SOURCE_ID);
-      overlayHost.setVisible(FIRMS_OVERLAY_SOURCE_ID, false);
+      overlayHost.clearSource(overlaySourceId);
+      overlayHost.setVisible(overlaySourceId, false);
       layerState._currentLodIndex = -1;
       layerState._lastViewRect = null;
       layerState._selectedFire = null;

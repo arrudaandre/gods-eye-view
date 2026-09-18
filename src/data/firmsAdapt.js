@@ -11,10 +11,14 @@
  * non-finite coordinates are skipped; `index` is the post-skip position
  * (it keys pick ids and context-store ids, so it must stay sequential).
  * `contextEntity`/`position` start null and are lazily filled by the layer.
- * @param {?Array<Object>} records - /api/firms `fires` array.
+ * @param {?Array<Object>} records - /api/firms (or /api/inpe) `fires` array.
+ * @param {{feedId?: string}} [options] - `feedId` stamps every record with the
+ *   owning layer namespace; fireDetectionKey prefixes identities with it so two
+ *   fires instances never share a context-store id (both FIRMS and INPE carry
+ *   the VIIRS satellites, so the same detection can arrive through both).
  * @returns {Array<Object>} Internal fire records.
  */
-export function adaptFirmsRecords(records) {
+export function adaptFirmsRecords(records, { feedId = 'firms' } = {}) {
   const fires = [];
   if (!Array.isArray(records)) return fires;
   const acqCache = new Map();
@@ -27,12 +31,20 @@ export function adaptFirmsRecords(records) {
       lat,
       lon,
       frp: finiteNumber(record.frp),
-      confidence: normalizeConfidence(record.confidence),
+      // Absent (not merely empty) confidence stays null: INPE publishes none,
+      // and coercing it to 0 would paint every Amazon detection "low conf".
+      confidence:
+        record.confidence === undefined || record.confidence === null
+          ? null
+          : normalizeConfidence(record.confidence),
       brightness: finiteNumber(record.brightness),
       night: record.daynight === 'N',
       acqMs: parseAcquisitionMs(record.acqDate, record.acqTime, acqCache),
       sensor: normalizeSensor(record.instrument),
       satellite: typeof record.satellite === 'string' ? record.satellite : '',
+      // Optional human place ("JACAREACANGA · PARÁ" from INPE); '' for FIRMS.
+      place: typeof record.place === 'string' ? record.place.trim() : '',
+      feedId,
       contextEntity: null,
       position: null,
     });

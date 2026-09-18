@@ -7,16 +7,52 @@ import { createViewport } from './viewport.js';
 import { createLifecycle } from './lifecycle.js';
 import { createQueries } from './queries.js';
 import { createFirmsState } from './state.js';
+import { FIRMS_OVERLAY_SOURCE_ID } from '../../data/firmsLabels.js';
+
+/**
+ * Fill in the per-instance identity a second fires feed needs. Everything
+ * that used to be the literal 'firms' inside the components — overlay source
+ * id, pick-id prefix, sprite-order key, detection-key prefix, the source
+ * label written to the context store — hangs off `namespace`, so the INPE
+ * Amazon layer can run beside NASA FIRMS without the two instances clobbering
+ * each other's cards, picks or context records. With no namespace every
+ * default is the shipped FIRMS value, so existing callers are unchanged.
+ * @param {Object} [config] - Layer options as passed by the catalog.
+ * @returns {Object} Options with namespace-derived defaults filled in.
+ */
+export function resolveFiresConfig(config = {}) {
+  const namespace =
+    typeof config.namespace === 'string' && config.namespace.trim()
+      ? config.namespace.trim()
+      : FIRMS_OVERLAY_SOURCE_ID;
+  return {
+    ...config,
+    namespace,
+    overlaySourceId: config.overlaySourceId ?? namespace,
+    // Only the NASA feed is key-gated (the proxy answers 503 no_key). A
+    // namespaced feed is keyless unless the caller says otherwise, so an
+    // open-data instance never shows KEY REQUIRED for a key it does not use.
+    requiresKeyId:
+      'requiresKeyId' in config
+        ? config.requiresKeyId
+        : namespace === FIRMS_OVERLAY_SOURCE_ID
+          ? 'firms'
+          : null,
+    contextSource: config.contextSource ?? 'NASA FIRMS',
+  };
+}
 
 export function createFirmsHelpers({ services }) {
-  const layerState = createFirmsState({ services, config: {} });
-  return createModel({ layerState, services, config: {}, components: {} });
+  const config = resolveFiresConfig({});
+  const layerState = createFirmsState({ services, config });
+  return createModel({ layerState, services, config, components: {} });
 }
 
 /** Compose one fire layer with explicit source and scene operations. */
-export function createFirmsHeatmapLayer({ services, feed, ...config }) {
+export function createFirmsHeatmapLayer({ services, feed, ...options }) {
   if (typeof feed?.getSnapshot !== 'function')
     throw new TypeError('Fires require a snapshot source');
+  const config = resolveFiresConfig(options);
   const layerState = createFirmsState({ services, config });
   const components = {};
   const context = { layerState, services, config, components, feed };

@@ -132,6 +132,23 @@
     "modules": ["server/providers/firms.js", "src/data/firmsCsv.js"],
     "external": []
   },
+  "inpe-csv": {
+    "exports": ["./sources/inpe-csv"],
+    "modules": ["src/data/inpeCsv.js"],
+    "external": []
+  },
+  "inpe-provider": {
+    "runtime": "node",
+    "exports": ["./server/providers/inpe"],
+    "modules": [
+      "server/providers/inpe.js",
+      "server/providers/common/http.js",
+      "src/sources/httpBody.js",
+      "src/data/firmsCsv.js",
+      "src/data/inpeCsv.js"
+    ],
+    "external": []
+  },
   "gbfs-provider": {
     "runtime": "node",
     "exports": ["./server/providers/gbfs"],

@@ -1,11 +1,18 @@
-/** Construct the existing live-fire endpoint without making a request. */
+/**
+ * Construct a live-fire snapshot endpoint without making a request. The
+ * INPE proxy answers with the same `{fetchedAt, stale, fires}` contract as
+ * /api/firms, so one source factory serves both feeds — `url` picks the
+ * proxy and `label` names it in errors.
+ */
 export function createFirmsSource({
   fetchImpl = (...args) => globalThis.fetch(...args),
+  url = '/api/firms',
+  label = 'FIRMS',
 } = {}) {
   return {
     async getSnapshot({ signal } = {}) {
       signal?.throwIfAborted();
-      const response = await fetchImpl('/api/firms', {
+      const response = await fetchImpl(url, {
         signal,
         cache: 'no-store',
       });
@@ -19,7 +26,7 @@ export function createFirmsSource({
       if (!response.ok) {
         if (response.status === 503 && payload?.error === 'no_key')
           return { keyRequired: true };
-        throw new Error(`FIRMS HTTP ${response.status}`);
+        throw new Error(`${label} HTTP ${response.status}`);
       }
       if (!Array.isArray(payload?.fires))
         throw new Error('Malformed fire snapshot');

@@ -867,6 +867,32 @@ throws, that source reports failure without a contradictory success entry.
 The existing per-record append continues to support large feeds; sequential
 fetching, trailing-24-hour filtering and partial-success caching are unchanged.
 
+## INPE Amazon fires (second fires instance)
+
+`inpe-fires` ("Amazon Fires (INPE)", Events group, share token `k`) is the
+fires layer (`src/layers/firms/`) instantiated a second time over
+`/api/inpe`. `server/providers/inpe.js` fetches INPE Programa Queimadas'
+daily Brazil CSV for today and yesterday (UTC) sequentially, parses it with
+the pure `src/data/inpeCsv.js` into FIRMS-shaped records (`data_hora_gmt` →
+`acqDate`/`acqTime`, sensor derived from the satellite name, municipality ·
+state as `place`), filters to `INPE_FIRES_BIOMES` (default `Amazônia`, `*`
+for all), clamps to the trailing 24 h, and caches for 20 minutes in memory
+and `.gev-cache/inpe.json` with single-flight refresh and stale-on-failure.
+A cache built for another biome selection only serves as stale fallback.
+There is no key: the layer never reports KEY REQUIRED.
+
+`resolveFiresConfig` (`src/layers/firms/index.js`) derives the per-instance
+identity from `namespace`: overlay source id, `<namespace>-<index>` pick ids,
+sprite-order key (`'inpe'` sits just above `'firms'`), the `feedId` stamped on
+every adapted record (which prefixes `fireDetectionKey`, so a VIIRS detection
+present in both feeds never shares a context-store id), the context-store
+`source` label and `requiresKeyId` (null for any non-FIRMS namespace unless
+set). With no namespace every value is the shipped FIRMS one. Records with no
+confidence at all (INPE) keep `confidence: null`; cards and context records
+then omit the bucket instead of claiming "low", and the selected card adds
+the INPE place line. `satelliteShortName` maps INPE spellings (NPP-375D,
+AQUA_M-T, TERRA_M-M, GOES-19, METOP-B) to readable short names.
+
 ## Installations and map-source guidance
 
 - On an uncached Overpass failure, mapped installations keep their existing
